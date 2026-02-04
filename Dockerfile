@@ -1,29 +1,26 @@
 FROM php:8.4-cli
 
-# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
     git unzip libpng-dev libonig-dev libxml2-dev libpq-dev zip curl \
     && docker-php-ext-install \
     pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd sockets
 
-# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 COPY . .
 
-# Permissões de pasta
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-# Instalar dependências e baixar o binário do RoadRunner (Linux)
-RUN composer install --no-dev --optimize-autoloader && \
-    php vendor/bin/rr get-binary
+RUN composer install --no-dev --optimize-autoloader \
+    && php vendor/bin/rr get-binary
 
-# Expor a porta do Render/Railway
 EXPOSE 10000
 
-# Cache e Start via Octane
+# 🔥 ISSO É O QUE ESTAVA FALTANDO
+USER www-data
+
 CMD php artisan migrate --force && \
     php artisan config:cache && \
     php artisan route:cache && \
