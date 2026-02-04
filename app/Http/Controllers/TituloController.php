@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Titulo; // Certifique-se de ter o Model criado
 
-class AdminController extends Controller
+class TituloController extends Controller
 {
     public function gerenciarTitulos()
     {

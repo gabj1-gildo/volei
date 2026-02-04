@@ -1,48 +1,31 @@
-# Imagem base
-# Change from php:8.2-cli to:
 FROM php:8.4-cli
-# Instalar dependências do sistema
+
+# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    zip \
-    curl \
+    git unzip libpng-dev libonig-dev libxml2-dev libpq-dev zip curl \
     && docker-php-ext-install \
-    pdo \
-    pdo_mysql \
-    pdo_pgsql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    gd
+    pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd sockets
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Definir diretório de trabalho
 WORKDIR /var/www
-
-# Copiar arquivos do projeto
 COPY . .
 
-# Permissões
+# Permissões de pasta
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 storage bootstrap/cache
 
-# Instalar dependências do Laravel (Somente o que é necessário para o build)
-RUN composer install --no-dev --optimize-autoloader
+# Instalar dependências e baixar o binário do RoadRunner (Linux)
+RUN composer install --no-dev --optimize-autoloader && \
+    php vendor/bin/rr get-binary
 
-# Expor porta usada pelo Render
+# Expor a porta do Render/Railway
 EXPOSE 10000
 
-# O SEGREDO: Comandos de runtime vão no CMD
+# Cache e Start via Octane
 CMD php artisan migrate --force && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
-    php artisan serve --host=0.0.0.0 --port=10000
+    php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=10000
