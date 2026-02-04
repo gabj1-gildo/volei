@@ -1,6 +1,6 @@
 # Imagem base
-FROM php:8.2-cli
-
+# Change from php:8.2-cli to:
+FROM php:8.4-cli
 # Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
     git \
