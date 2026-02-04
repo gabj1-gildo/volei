@@ -47,7 +47,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Gestão de Inscrições
         Route::get('/gerenciar-inscricoes', [AdminController::class, 'gerenciarInscricoes'])->name('gerenciar_inscricoes');
         Route::post('/alterar-status-inscricao', [AdminController::class, 'alterarStatusInscricao'])->name('alterar_status_inscricao');
-
     });
 
     // --- GRUPO: EXCLUSIVO ADMIN (Gestão de Pessoas) ---
