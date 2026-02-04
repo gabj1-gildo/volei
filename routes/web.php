@@ -20,7 +20,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 Route::get('/disparar-email', function () {
     // 1. Pega o usuário logado
     $usuario = Auth::user();
