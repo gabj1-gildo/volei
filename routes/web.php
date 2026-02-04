@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+Route::get('/disparar-email', function () {
+    // 1. Pega o usuário logado
+    $usuario = Auth::user();
+
+    // 2. Validação simples caso não tenha ninguém logado
+    if (!$usuario) {
+        return "Erro: Você precisa estar logado para o sistema saber para quem enviar.";
+    }
+
+    // 3. O "Pulo do Gato": Enviando sem precisar de View ou Mailable
+    Mail::html("<p>Olá <strong>{$usuario->name}</strong>,</p><p>Este e-mail foi disparado via rota de teste!</p>", function ($message) use ($usuario) {
+        $message->to($usuario->email)
+                ->subject("Teste de Sistema - " . $usuario->name);
+    });
+
+    return "Sucesso! E-mail enviado para: " . $usuario->email;
+});
 // --- GRUPO DE USUÁRIOS AUTENTICADOS ---
 Route::middleware(['auth', 'verified'])->group(function () {
     
