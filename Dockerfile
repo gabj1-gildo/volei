@@ -11,14 +11,13 @@ WORKDIR /var/www
 COPY . .
 
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 /var/www
 
 RUN composer install --no-dev --optimize-autoloader \
     && php vendor/bin/rr get-binary
 
 EXPOSE 10000
 
-# 🔥 ISSO É O QUE ESTAVA FALTANDO
 USER www-data
 
 CMD php artisan migrate --force && \
