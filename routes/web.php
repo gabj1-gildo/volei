@@ -20,6 +20,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/test-mail', function () {
+    Mail::raw('Teste OK', function ($m) {
+        $m->to('gildojunior032@gmail.com')->subject('Teste');
+    });
+    return 'enviado';
+});
 
 // --- GRUPO DE USUÁRIOS AUTENTICADOS ---
 Route::middleware(['auth', 'verified'])->group(function () {
