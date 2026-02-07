@@ -1,8 +1,10 @@
 FROM php:8.4-cli
 
 # 1. Instalar dependências do sistema
+# CORREÇÃO: Trocamos 'libaio1' por 'libaio1t64' e criamos o symlink logo em seguida.
 RUN apt-get update && apt-get install -y \
-    git unzip libpng-dev libonig-dev libxml2-dev libpq-dev zip curl libaio1 \
+    git unzip libpng-dev libonig-dev libxml2-dev libpq-dev zip curl libaio1t64 \
+    && ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 \
     && docker-php-ext-install \
     pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd sockets
 
@@ -10,9 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /opt/oracle
 
-# 2. BAIXAR O CLIENTE ORACLE DIRETO DA INTERNET (Solução para o erro do GitHub)
-# Usamos o 'curl' para pegar os arquivos zip direto do servidor da Oracle.
-# Isso evita que você tenha que commitar arquivos de 100MB+ no seu git.
+# 2. BAIXAR O CLIENTE ORACLE (Mantivemos a correção anterior do CURL)
 RUN curl -o instantclient-basic.zip https://download.oracle.com/otn_software/linux/instantclient/2112000/instantclient-basic-linux.x64-21.12.0.0.0dbru.zip \
     && curl -o instantclient-sdk.zip https://download.oracle.com/otn_software/linux/instantclient/2112000/instantclient-sdk-linux.x64-21.12.0.0.0dbru.zip \
     && unzip instantclient-basic.zip \
@@ -34,14 +34,14 @@ WORKDIR /var/www
 # Copiar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar arquivos do projeto (Agora sem os zips pesados, isso é rápido)
+# Copiar arquivos do projeto
 COPY . .
 
 # Permissões
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www
 
-# Instalar dependências e baixar binário do RoadRunner
+# Instalar dependências e baixar RoadRunner
 RUN composer install --no-dev --optimize-autoloader \
     && php vendor/bin/rr get-binary
 
@@ -49,7 +49,7 @@ EXPOSE 10000
 
 USER www-data
 
-# Define a variável TNS para buscar a wallet nos secrets do Render
+# Define variável para a Wallet
 ENV TNS_ADMIN=/etc/secrets
 
 CMD php artisan migrate --force && \
