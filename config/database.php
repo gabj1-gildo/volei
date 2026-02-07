@@ -113,6 +113,21 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'oracle' => [
+            'driver'         => 'oracle',
+            'tns'            => env('DB_TNS'), // Usaremos o TNS bruto ou o alias
+            'host'           => env('DB_HOST', ''),
+            'port'           => env('DB_PORT', '1522'),
+            'database'       => env('DB_DATABASE', ''),
+            'username'       => env('DB_USERNAME', ''),
+            'password'       => env('DB_PASSWORD', ''),
+            'charset'        => 'AL32UTF8',
+            'prefix'         => '',
+            'prefix_schema'  => env('DB_SCHEMA_PREFIX', ''),
+            'edition'        => env('DB_EDITION', 'ora$base'),
+            'server_version' => '19c',
+        ],
+
     ],
 
     /*
