@@ -229,7 +229,7 @@
     </style>
 </head>
 <body>
-    <div class="hero-card">
+    <div class="hero-card" style="max-width: 1000px;">
         <div class="row g-0 content-row">
             <!-- Conteúdo Principal -->
             <div class="col-12 col-md-8">
