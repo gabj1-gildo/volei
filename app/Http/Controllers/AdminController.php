@@ -16,11 +16,13 @@ class AdminController extends Controller
     public function gerenciarJogos()
     {
         $jogosAgrupados = Jogo::with(['titulo', 'local', 'responsavel'])
-            ->withCount('inscricoes')
+            ->withCount(['inscricoes' => function ($query) {
+                $query->whereNotIn('status', ['cancelada']);
+            }])
             ->get()
             ->groupBy(fn($j) => $j->responsavel->name);
-        $titulos = Titulo::all();
-        $locais = Local::all();
+        $titulos= Titulo::where('ativo', true)->get();
+        $locais= Local::where('ativo', true)->get();
         
         // Busca apenas usuários que são organizadores para o Admin poder escolher
         $organizadores = User::where('tipo', 'organizador')->get();
@@ -113,20 +115,25 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'username'=> 'required|exists:users,username',
             'tipo' => 'required|in:admin,organizador,jogador',
         ]);
 
-        $user = User::findOrFail($request->user_id);
-        
-        // Impede que o admin logado altere o próprio tipo (evita ficar sem admin no sistema)
-        if ($user->id === auth()->id()) {
+        $userAlvo = User::findOrFail($request->user_id);
+        $adminLogado = auth()->user();
+
+        // REGRA 1: Impede que o admin altere a si mesmo
+        if ($userAlvo->id === $adminLogado->id) {
             return back()->with('error', 'Você não pode alterar seu próprio nível de acesso.');
         }
 
-        $user->update(['tipo' => $request->tipo]);
+        // REGRA 2: Impede que um admin altere outro admin
+        if ($userAlvo->tipo === 'admin') {
+            return back()->with('error', 'Segurança: Um administrador não pode alterar o cargo de outro administrador.');
+        }
 
-        return back()->with('success', "O nível de acesso de {$user->name} foi atualizado!");
+        $userAlvo->update(['tipo' => $request->tipo]);
+
+        return back()->with('success', "O nível de acesso de {$userAlvo->name} foi atualizado!");
     }
 
     //-----------------------------------------------------------------------------------------//
@@ -160,19 +167,16 @@ class AdminController extends Controller
         return redirect()->route('gerenciar_titulos');
     }
 
-    public function excluirTitulo(Request $request)
+    public function alternarStatusTitulo(Request $request)
     {
-        // $titulo = Titulo::findOrFail($request->id);
-        // $titulo->delete();
-        // return redirect()->route('gerenciar_titulos');
-        try {
-            $titulo = Titulo::findOrFail($request->id);
-            $titulo->delete();
-            return redirect()->route('gerenciar_titulos')->with('success', 'Título excluído!');
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Erro 23503 no Postgres é violação de chave estrangeira
-            return redirect()->route('gerenciar_titulos')->with('error', 'Não é possível excluir: existem jogos usando este título.');
-        }
+        $titulo = Titulo::findOrFail($request->id);
+        
+        // Inverte o status atual
+        $titulo->ativo = !$titulo->ativo;
+        $titulo->save();
+
+        $statusTexto = $titulo->ativo ? 'ativado' : 'desativado';
+        return redirect()->route('gerenciar_titulos')->with('success', "Título $statusTexto com sucesso!");
     }
 
     //-----------------------------------------------------------------------------------------//
@@ -210,11 +214,16 @@ public function atualizarLocal(Request $request)
     return redirect()->route('gerenciar_locais');
 }
 
-public function excluirLocal(Request $request)
-{
-    $local = Local::findOrFail($request->id);
-    $local->delete();
-    return redirect()->route('gerenciar_locais');
-}
+public function alternarStatusLocal(Request $request)
+    {
+        $local = Local::findOrFail($request->id);
+        
+        // Inverte o status atual
+        $local->ativo = !$local->ativo;
+        $local->save();
+
+        $statusTexto = $local->ativo ? 'ativado' : 'desativado';
+        return redirect()->route('gerenciar_locais')->with('success', "Local $statusTexto com sucesso!");
+    }
 
 }

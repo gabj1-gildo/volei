@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('nome');
             $table->string('endereco')->nullable();
             $table->enum('tipo', ['publico', 'privado'])->default('publico');
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
     }

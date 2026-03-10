@@ -11,8 +11,14 @@ class JogadorController extends Controller
 {
     // Lista todos os jogos abertos para o jogador se inscrever
     public function index() {
+        $user = Auth::user();
         $jogos = Jogo::with(['titulo', 'local', 'responsavel'])
-            ->withCount('inscricoes')
+            ->withCount(['inscricoes' => function ($query) {
+                $query->whereNotIn('status', ['cancelada']);
+            }])
+            ->with(['inscricoes' => function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
             ->where('status', 'aberto')
             ->where('data_hora', '>', now())
             ->get();
@@ -24,23 +30,29 @@ class JogadorController extends Controller
     public function inscrever(Request $request)
     {
         try {
-            // 1. Descriptografamos o ID que veio do formulário
             $jogoId = decrypt($request->jogo_id);
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-            // Caso o ID seja inválido ou não esteja criptografado
+        } catch (\Exception $e) {
             return back()->with('error', 'ID do jogo inválido.');
         }
 
-        // 2. Agora verificamos se o usuário já está inscrito usando o ID real (número)
-        $existe = Inscricao::where('jogo_id', $jogoId)
-                        ->where('user_id', Auth::id())
-                        ->exists();
+        // Busca se já existe uma inscrição (mesmo que cancelada)
+        $inscricaoExistente = Inscricao::where('jogo_id', $jogoId)
+                                        ->where('user_id', Auth::id())
+                                        ->first();
 
-        if ($existe) {
-            return back()->with('error', 'Você já está inscrito nesta partida!');
+        if ($inscricaoExistente) {
+            // Se a inscrição estiver ativa (pendente ou aprovada), bloqueia
+            if (in_array($inscricaoExistente->status, ['pendente', 'aprovada', 'confirmada'])) {
+                return back()->with('error', 'Você já possui uma inscrição ativa para este jogo!');
+            }
+
+            // Se estiver cancelada ou recusada, nós atualizamos para 'pendente' novamente
+            $inscricaoExistente->update(['status' => 'pendente']);
+            
+            return back()->with('success', 'Inscrição reiniciada! Aguarde nova aprovação.');
         }
 
-        // 3. Salvamos usando o ID descriptografado
+        // Se não existir nenhuma, cria uma do zero
         Inscricao::create([
             'jogo_id' => $jogoId,
             'user_id' => Auth::id(),
@@ -50,10 +62,28 @@ class JogadorController extends Controller
         return back()->with('success', 'Inscrição realizada! Aguarde aprovação.');
     }
 
+    public function cancelarInscricao(Request $request)
+    {
+        try {
+            $id = decrypt($request->inscricao_id);
+            $inscricao = Inscricao::where('id', $id)
+                ->where('user_id', Auth::id()) // Segurança: só cancela a própria
+                ->firstOrFail();
+
+            $inscricao->update(['status' => 'cancelada']);
+
+            return back()->with('success', 'Sua inscrição foi cancelada.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao cancelar inscrição.');
+        }
+    }
     public function dashboard()
     {
         // 1. Busca os jogos disponíveis para a vitrine
         $jogos = Jogo::with(['titulo', 'local'])
+            ->withCount(['inscricoes' => function ($query) {
+                $query->whereNotIn('status', ['cancelada']);
+            }])
             ->where('status', 'aberto')
             ->get();
 

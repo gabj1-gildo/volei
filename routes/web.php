@@ -41,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // FUNÇÕES DO JOGADOR
     Route::get('/vitrine-jogos', [JogadorController::class, 'index'])->name('jogos_disponiveis');
     Route::post('/inscrever', [JogadorController::class, 'inscrever'])->name('fazer_inscricao');
+    Route::post('/cancelar-inscricao', [JogadorController::class, 'cancelarInscricao'])->name('cancelar_inscricao');
+
 
     // --- GRUPO: ADMIN E ORGANIZADORES (Gestão da Logística) ---
     // Substituímos a função anônima pelo apelido (alias) do middleware que você criou manualmente
@@ -52,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/jogos/editar/{id}', [AdminController::class, 'editarJogo'])->name('editar_jogo');
         Route::post('/jogos/atualizar', [AdminController::class, 'atualizarJogo'])->name('atualizar_jogo');
         Route::get('/jogos/cancelar', [AdminController::class, 'cancelarJogo'])->name('cancelar_jogo');
-
+        
         // Gestão de Inscrições
         Route::get('/gerenciar-inscricoes', [AdminController::class, 'gerenciarInscricoes'])->name('gerenciar_inscricoes');
         Route::post('/alterar-status-inscricao', [AdminController::class, 'alterarStatusInscricao'])->name('alterar_status_inscricao');
@@ -67,13 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/titulos', [AdminController::class, 'gerenciarTitulos'])->name('gerenciar_titulos');
         Route::post('/titulos/salvar', [AdminController::class, 'salvarTitulo'])->name('salvar_titulo');
         Route::post('/titulos/atualizar', [AdminController::class, 'atualizarTitulo'])->name('atualizar_titulo');
-        Route::delete('/titulos/excluir', [AdminController::class, 'excluirTitulo'])->name('excluir_titulo');
-
+        Route::post('/admin/titulos/status', [AdminController::class, 'alternarStatusTitulo'])->name('alternar_status_titulo');
+        
         //Gerenciamento de locais
         Route::get('/locais', [AdminController::class, 'gerenciarLocais'])->name('gerenciar_locais');
         Route::post('/locais/salvar', [AdminController::class, 'salvarLocal'])->name('salvar_local');
         Route::post('/locais/atualizar', [AdminController::class, 'atualizarLocal'])->name('atualizar_local');
-        Route::delete('/locais/excluir', [AdminController::class, 'excluirLocal'])->name('excluir_local');
+        Route::post('/admin/locais/status', [AdminController::class, 'alternarStatusLocal'])->name('alternar_status_local');
     });
 
 });

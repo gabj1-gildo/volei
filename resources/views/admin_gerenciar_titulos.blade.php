@@ -19,36 +19,46 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($titulos as $titulo)
-                    <tr>
-                        <td><span class="fw-bold">{{ $titulo->nome }}</span></td>
-                        <td class="text-center">
-                            <div class="d-flex gap-2 justify-content-center">
-                                <button class="btn btn-sm btn-outline-primary" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#modalEditarTitulo"
-                                        data-id="{{ $titulo->id }}"
-                                        data-nome="{{ $titulo->nome }}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                
-                                <form action="{{ route('excluir_titulo') }}" method="POST" onsubmit="return confirm('Excluir permanentemente?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="id" value="{{ $titulo->id }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
+                @forelse($titulos as $titulo)
+                <tr class="{{ !$titulo->ativo ? 'opacity-50 bg-light' : '' }}">
+                    <td>
+                        <span class="fw-bold">{{ $titulo->nome }}</span>
+                        @if(!$titulo->ativo)
+                            <span class="badge bg-danger ms-2">Inativo</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-2 justify-content-center">
+                            {{-- Botão Editar --}}
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEditarTitulo"
+                                    data-id="{{ $titulo->id }}"
+                                    data-nome="{{ $titulo->nome }}"
+                                    {{ !$titulo->ativo ? 'disabled' : '' }}>
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            
+                            {{-- Botão Ativar/Desativar --}}
+                            <form action="{{ route('alternar_status_titulo') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $titulo->id }}">
+                                @if($titulo->ativo)
+                                    <button type="submit" class="btn btn-sm btn-warning" title="Desativar">
+                                        <i class="bi bi-eye-slash"></i>
                                     </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="text-center py-5 text-muted">Nenhum título cadastrado.</td>
-                    </tr>
+                                @else
+                                    <button type="submit" class="btn btn-sm btn-success" title="Reativar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                @endif
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
                     @endforelse
-                </tbody>
+            </tbody>
             </table>
         </div>
     </div>
