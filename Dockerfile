@@ -21,7 +21,6 @@ EXPOSE 10000
 USER www-data
 
 CMD php artisan migrate --force && \
-    php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
     php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=10000

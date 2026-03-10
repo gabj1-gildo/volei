@@ -162,9 +162,17 @@ class AdminController extends Controller
 
     public function excluirTitulo(Request $request)
     {
-        $titulo = Titulo::findOrFail($request->id);
-        $titulo->delete();
-        return redirect()->route('gerenciar_titulos');
+        // $titulo = Titulo::findOrFail($request->id);
+        // $titulo->delete();
+        // return redirect()->route('gerenciar_titulos');
+        try {
+            $titulo = Titulo::findOrFail($request->id);
+            $titulo->delete();
+            return redirect()->route('gerenciar_titulos')->with('success', 'Título excluído!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Erro 23503 no Postgres é violação de chave estrangeira
+            return redirect()->route('gerenciar_titulos')->with('error', 'Não é possível excluir: existem jogos usando este título.');
+        }
     }
 
     //-----------------------------------------------------------------------------------------//
