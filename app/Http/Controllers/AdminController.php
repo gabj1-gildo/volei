@@ -15,7 +15,10 @@ class AdminController extends Controller
     // Listagem de Jogos (admin_gerenciar_jogos.blade.php)
     public function gerenciarJogos()
     {
-       $jogosAgrupados = Jogo::with(['titulo', 'local', 'user'])->get()->groupBy(fn($j) => $j->user?->name ?? 'Sem Organizador');
+        $jogosAgrupados = Jogo::with(['titulo', 'local', 'responsavel'])
+            ->withCount('inscricoes')
+            ->get()
+            ->groupBy(fn($j) => $j->responsavel->name);
         $titulos = Titulo::all();
         $locais = Local::all();
         

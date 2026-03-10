@@ -40,7 +40,7 @@
                                     <td>{{ date('d/m H:i', strtotime($jogo->data_hora)) }}</td>
                                     <td>{{ $jogo->local->nome }}</td>
                                     <td class="text-center">
-                                        <span class="badge bg-info text-dark">{{ $jogo->inscricoes_count }} / {{ $jogo->vagas }}</span>
+                                        <span class="badge bg-info text-dark">{{ $jogo->limite_jogadores - $jogo->inscricoes_count }} / {{ $jogo->limite_jogadores }}</span>
                                     </td>
                                     <td class="text-center">
                                         <a href="{{ route('gerenciar_inscricoes', ['jogo' => $jogo->id]) }}" class="btn btn-sm btn-outline-primary">

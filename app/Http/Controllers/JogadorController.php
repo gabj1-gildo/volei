@@ -20,23 +20,33 @@ class JogadorController extends Controller
     }
 
     // Processa a inscrição do jogador no jogo
-    public function inscrever(Request $request) {
-        // Verifica se já está inscrito
-        $existe = Inscricao::where('jogo_id', $request->jogo_id)
-            ->where('user_id', Auth::id())
-            ->exists();
+    public function inscrever(Request $request)
+    {
+        try {
+            // 1. Descriptografamos o ID que veio do formulário
+            $jogoId = decrypt($request->jogo_id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            // Caso o ID seja inválido ou não esteja criptografado
+            return back()->with('error', 'ID do jogo inválido.');
+        }
+
+        // 2. Agora verificamos se o usuário já está inscrito usando o ID real (número)
+        $existe = Inscricao::where('jogo_id', $jogoId)
+                        ->where('user_id', Auth::id())
+                        ->exists();
 
         if ($existe) {
             return back()->with('error', 'Você já está inscrito nesta partida!');
         }
 
+        // 3. Salvamos usando o ID descriptografado
         Inscricao::create([
-            'jogo_id' => $request->jogo_id,
+            'jogo_id' => $jogoId,
             'user_id' => Auth::id(),
-            'status' => 'pendente'
+            'status'  => 'pendente'
         ]);
 
-        return back()->with('success', 'Inscrição realizada! Aguarde a aprovação do organizador.');
+        return back()->with('success', 'Inscrição realizada! Aguarde aprovação.');
     }
 
     public function dashboard()

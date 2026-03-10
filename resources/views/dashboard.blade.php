@@ -72,8 +72,8 @@
                                     
                                     <p class="card-text mb-3">
                                         <strong>Vagas Disponíveis:</strong> 
-                                        <span class="badge {{ ($jogo->vagas - $jogo->inscricoes_count) > 0 ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $jogo->vagas - $jogo->inscricoes_count }} de {{ $jogo->vagas }}
+                                        <span class="badge {{ ($jogo->limite_jogadores - $jogo->inscricoes_count) > 0 ? 'bg-success' : 'bg-danger' }}">
+                                            {{ $jogo->limite_jogadores - $jogo->inscricoes_count }} de {{ $jogo->limite_jogadores }}
                                         </span>
                                     </p>
 
