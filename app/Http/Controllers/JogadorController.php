@@ -12,6 +12,7 @@ class JogadorController extends Controller
     // Lista todos os jogos abertos para o jogador se inscrever
     public function index() {
         $jogos = Jogo::with(['titulo', 'local', 'responsavel'])
+            ->withCount('inscricoes')
             ->where('status', 'aberto')
             ->where('data_hora', '>', now())
             ->get();
