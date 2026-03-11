@@ -43,11 +43,6 @@ class AdminController extends Controller
             'limite_jogadores' => 'required|integer|min:1',
         ];
 
-        // // Se for admin, validamos também o campo do responsável
-        // if (auth()->user()->tipo === 'admin') {
-        //     $rules['responsavel_id'] = 'required|exists:users,id';
-        // }
-
         $request->validate($rules);
 
         // 2. Processamento das Datas
@@ -74,21 +69,62 @@ class AdminController extends Controller
         return redirect()->route('gerenciar_jogos')->with('success', 'Jogo criado com sucesso!');
     }
 
-    public function excluirJogo(Request $request)
+    //editar jogo
+    public function editarJogo(Request $request)
     {
-        if (Auth::user()->tipo !== 'admin') abort(403);
+        // 1. Validação dos dados recebidos do formulário
+        $request->validate([
+            'id'                    => 'required|exists:partidas,id', // troque 'partidas' pelo nome correto da sua tabela se for diferente
+            'titulo'                => 'required|integer',
+            'local'                 => 'required|integer',
+            'data'                  => 'required|date',
+            'hora'                  => 'required',
+            'limite_jogadores'      => 'required|integer|min:1',
+            'data_limite_inscricao' => 'required|date',
+            'hora_limite_inscricao' => 'required',
+            'descricao'             => 'nullable|string|max:1000',
+        ]);
 
-        $jogo = Jogo::findOrFail($request->id);
-        $jogo->delete();
+        // 2. Busca a partida no banco de dados
+        $partida = Partida::findOrFail($request->id);
 
-        return redirect()->back()->with('success', 'Jogo removido.');
+        // 3. Junta as datas e horas para o formato do banco (Y-m-d H:i:s)
+        $dataHora = $request->data . ' ' . $request->hora . ':00';
+        $dataLimite = $request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao . ':00';
+
+        // 4. Atualiza os dados no banco
+        $partida->update([
+            'titulo_id'             => $request->titulo,
+            'local_id'              => $request->local,
+            'data_hora'             => $dataHora,
+            'limite_jogadores'      => $request->limite_jogadores,
+            'data_limite_inscricao' => $dataLimite,
+            'descricao'             => $request->descricao,
+            // O responsavel_id só é atualizado se for enviado na request (ex: se for admin)
+            'responsavel_id'        => $request->has('responsavel_id') ? $request->responsavel_id : $partida->responsavel_id,
+        ]);
+
+        // 5. Retorna para a view com a mensagem de sucesso para o Toast
+        return back()->with('success', 'Jogo atualizado com sucesso!');
     }
+
+    public function alterarStatusJogo(Request $request) {
+    $request->validate([
+        'status'     => 'required|string' // ou in:agendado,em_andamento,finalizado
+    ]);
+
+    $jogo = Jogo::findOrFail($request->id_partida);
+    $jogo->update(['status' => $request->status]);
+
+    return back()->with('success', 'Status da partida atualizado!');
+}
 
     //-----------------------------------------------------------------------------------------//
 
     // Gerenciar Inscrições (admin_gerenciar_inscricoes.blade.php)
     public function gerenciarInscricoes(Request $request) {
-        $query = Jogo::with(['inscricoes.user', 'titulo', 'local']);
+        $query = Jogo::with(['inscricoes.user', 'titulo', 'local'])
+                    ->where('status', 'aberto');
         if($request->jogo) $query->where('id', $request->jogo);
         $jogos = $query->get();
         return view('admin_gerenciar_inscricoes', compact('jogos'));
@@ -152,7 +188,7 @@ class AdminController extends Controller
         ]);
 
         Titulo::create($request->only('nome'));
-        return redirect()->route('gerenciar_titulos');
+        return redirect()->route('gerenciar_titulos')->with('success', "Título criado com sucesso!");
     }
 
     public function atualizarTitulo(Request $request)
@@ -164,7 +200,7 @@ class AdminController extends Controller
 
         $titulo = Titulo::findOrFail($request->id);
         $titulo->update($request->only('nome'));
-        return redirect()->route('gerenciar_titulos');
+        return redirect()->route('gerenciar_titulos')->with('success', "Título atualizado com sucesso!");
     }
 
     public function alternarStatusTitulo(Request $request)

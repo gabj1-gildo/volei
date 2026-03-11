@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('jogo_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['pendente', 'confirmado', 'cancelada'])->default('pendente');
+            $table->enum('status', ['pendente', 'confirmado', 'recusada', 'cancelada'])->default('pendente');
             $table->timestamps();
         });
     }

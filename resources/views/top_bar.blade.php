@@ -1,73 +1,98 @@
-<nav class="navbar navbar-expand-lg navbar shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
-        {{-- rota inicial --}}
-        <a href="{{url('/')}}" class="nav-link"><img src="{{ asset('img/logo_piravolei.png') }}" alt="Logo PiraVôlei" width="30" height="30" class="me-2"></a>
-        <a class="navbar-brand fw-bold" href="{{ route('dashboard') }}">PiraVôlei</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        {{-- Logo e Brand --}}
+        <a class="navbar-brand d-flex align-items-center fw-bold" href="{{ route('dashboard') }}">
+            <img src="{{ asset('img/logo_piravolei.png') }}" alt="Logo PiraVôlei" width="32" height="32" class="me-2 rounded">
+            <span class="text-primary">Pira</span>Vôlei
+        </a>
+        
+        {{-- Botão Mobile --}}
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
-
+            
+            {{-- Estilo para o hover dos links --}}
             <style>
-        .navbar-nav .nav-item {
-            transition: all 0.3s;
-        }
-        .navbar-nav .nav-item:hover {
-            background-color: rgba(139, 139, 152, 0.627);
-            border-radius: 5px;
-        }
-    </style>
+                .navbar-nav .nav-item .nav-link {
+                    border-radius: 6px;
+                    padding: 0.5rem 0.8rem;
+                    transition: all 0.2s ease-in-out;
+                }
+                .navbar-nav .nav-item .nav-link:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    color: #fff !important;
+                }
+            </style>
 
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 ms-lg-3">
                 {{-- Visível para todos os logados --}} 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">Jogos</a>
+                    <a class="nav-link" href="{{ route('dashboard') }}">
+                        <i class="bi bi-play-circle me-1"></i> Jogos
+                    </a>
                 </li>
 
-                @if (Auth::user()->tipo=='admin')
+                @if (Auth::user()->tipo == 'admin')
                     {{-- Visível para Admin (Gestão de Locais e Títulos) --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_locais') }}">Gerenciar Locais</a>
+                        <a class="nav-link" href="{{ route('gerenciar_locais') }}">
+                            <i class="bi bi-geo-alt me-1"></i> Locais
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_titulos') }}">Gerenciar Títulos</a>
+                        <a class="nav-link" href="{{ route('gerenciar_titulos') }}">
+                            <i class="bi bi-tag me-1"></i> Títulos
+                        </a>
                     </li>
-    
                 @endif
+                
                 {{-- Visível para Admin e Organizador (Logística) --}}
                 @if(Auth::user()->tipo == 'admin' || Auth::user()->tipo == 'organizador')
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_jogos') }}">Gerenciar Jogos</a>
+                        <a class="nav-link" href="{{ route('gerenciar_jogos') }}">
+                            <i class="bi bi-calendar-event me-1"></i> Gerenciar Jogos
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_inscricoes') }}">Inscrições</a>
+                        <a class="nav-link" href="{{ route('gerenciar_inscricoes') }}">
+                            <i class="bi bi-card-checklist me-1"></i> Inscrições
+                        </a>
                     </li>
                 @endif
 
                 {{-- Exclusivo para Admin (Gestão de Pessoas) --}}
                 @if(Auth::user()->tipo == 'admin')
-                    <li class="nav-item">
+                    <li class="nav-item ms-lg-2">
                         <a class="nav-link text-warning" href="{{ route('gerenciar_usuarios') }}">
-                            <i class="bi bi-people-fill"></i> Usuários
+                            <i class="bi bi-people-fill me-1"></i> Usuários
                         </a>
                     </li>
                 @endif
             </ul>
 
-            <div class="navbar-nav align-items-center">
-                <span class="nav-link text-light me-3 small">Olá, {{ Auth::user()->name }}</span>
+            {{-- Área do Usuário (Direita) --}}
+            <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <span class="text-light small d-none d-lg-block">
+                    <i class="bi bi-person-circle me-1 text-secondary"></i> Olá, <strong>{{ explode(' ', Auth::user()->name)[0] }}</strong>
+                </span>
                 
-                {{-- Perfil --}}
-                <a href="{{ route('profile.edit') }}" class="btn btn-outline-info fw- btn-sm me-2">
-                    <i class="bi bi-person"></i>
-                </a>
+                {{-- Botões de Ação --}}
+                <div class="d-flex gap-2">
+                    <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-light" title="Meu Perfil">
+                        <i class="bi bi-gear-fill"></i>
+                    </a>
 
-                {{-- Logout --}}
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Sair</button>
-                </form>
+                    <form method="POST" action="{{ route('logout') }}" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-danger d-flex align-items-center gap-1" title="Sair do Sistema">
+                            <i class="bi bi-box-arrow-right d-lg-none"></i> Sair
+                        </button>
+                    </form>
+                </div>
             </div>
+            
         </div>
     </div>
 </nav>

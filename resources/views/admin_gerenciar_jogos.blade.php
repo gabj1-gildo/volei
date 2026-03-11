@@ -1,6 +1,24 @@
 @extends('layouts.main_layout')
 
 @section('content')
+
+    {{-- Exibição de Erros e Sucesso --}}
+    <div class="toast-container position-fixed top-0 end-0 p-3 mt-5" style="z-index: 1080">
+        <div id="toastSucesso" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    @if (session('success'))
+                        <span>{{ session('success') }}</span>
+                    @elseif (session('error'))
+                        <span>{{ session('error') }}</span>
+                    @endif
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-5">
         <div class="card shadow-sm border-0">
             {{-- Cabeçalho no estilo da página de Locais --}}
@@ -10,14 +28,6 @@
                     <i class="bi bi-plus-lg me-1"></i> Novo Jogo
                 </button>
             </div>
-
-            @if(session('success'))
-                <div class="alert alert-success m-3 border-0 shadow-sm text-center">{{ session('success') }}</div>
-            @endif
-            
-            @if(session('error'))
-                <div class="alert alert-danger m-3 border-0 shadow-sm text-center">{{ session('error') }}</div>
-            @endif
 
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
@@ -31,6 +41,7 @@
                             <th class="text-center">AÇÕES</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @forelse($jogosAgrupados as $organizador => $jogos)
                             <tr class="table-secondary">
@@ -39,70 +50,112 @@
                                 </td>
                             </tr>
                             @foreach($jogos as $jogo)
-                            <tr class="{{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
-                                <td class="ps-4">
-                                    <strong class="{{ $jogo->status === 'cancelado' ? 'text-decoration-line-through text-muted' : '' }}">
-                                        {{ $jogo->titulo->nome }}
-                                    </strong>
-                                </td>
-                                <td>{{ date('d/m H:i', strtotime($jogo->data_hora)) }}</td>
-                                <td>{{ $jogo->local->nome }}</td>
-                                <td>
-                                    <span class="badge {{ $jogo->status === 'aberto' ? 'bg-success' : 'bg-danger' }}">
-                                        {{ strtoupper($jogo->status) }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-info text-dark">
-                                        {{ $jogo->limite_jogadores - $jogo->inscricoes_count }} / {{ $jogo->limite_jogadores }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex gap-2 justify-content-center">
-                                        {{-- Botão Editar --}}
-                                        <button class="btn btn-sm btn-outline-primary" 
+                                {{-- Removemos o opacity-50 do <tr>. Opcionalmente, adicionei bg-light para dar um destaque visual de inativo --}}
+                                <tr class="{{ $jogo->status === 'cancelado' ? 'bg-light' : '' }}">
+                                    
+                                    {{-- Aplicando a opacidade em cada célula separadamente --}}
+                                    <td class="ps-4 {{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
+                                        <strong class="{{ $jogo->status === 'cancelado' ? 'text-decoration-line-through text-muted' : '' }}">
+                                            {{ $jogo->titulo->nome }}
+                                        </strong>
+                                    </td>
+                                    
+                                    <td class="{{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
+                                        {{ date('d/m H:i', strtotime($jogo->data_hora)) }}
+                                    </td>
+                                    
+                                    <td class="{{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
+                                        {{ $jogo->local->nome }}
+                                    </td>
+                                    
+                                    <td class="{{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
+                                        @php
+                                            $badgeClass = match($jogo->status) {
+                                                'aberto' => 'bg-success',
+                                                'inscricoes_encerradas' => 'bg-warning text-dark',
+                                                'em_andamento' => 'bg-primary',
+                                                'cancelado' => 'bg-danger',
+                                                'encerrado' => 'bg-secondary',
+                                                default => 'bg-light text-dark'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">
+                                            {{ strtoupper(str_replace('_', ' ', $jogo->status)) }}
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center {{ $jogo->status === 'cancelado' ? 'opacity-50' : '' }}">
+                                        <span class="badge bg-info text-dark">
+                                            {{ $jogo->limite_jogadores - $jogo->inscricoes_count }} / {{ $jogo->limite_jogadores }}
+                                        </span>
+                                    </td>
+                                    
+                                    {{-- A COLUNA DE AÇÕES FICA SEM A CLASSE DE OPACIDADE --}}
+                                    <td class="text-center">
+                                        <div class="d-flex gap-2 justify-content-center align-items-center">
+                                            
+                                            <button class="btn btn-sm btn-outline-primary" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#modalEditarJogo"
                                                 data-id="{{ $jogo->id }}"
-                                                data-titulo="{{ $jogo->titulo_id }}"
-                                                data-local="{{ $jogo->local_id }}"
+                                                data-titulo="{{ $jogo->titulo_id ?? '' }}"
+                                                data-local="{{ $jogo->local_id ?? '' }}"
                                                 data-data="{{ date('Y-m-d', strtotime($jogo->data_hora)) }}"
                                                 data-hora="{{ date('H:i', strtotime($jogo->data_hora)) }}"
                                                 data-limite="{{ $jogo->limite_jogadores }}"
-                                                data-data-limite="{{ date('Y-m-d', strtotime($jogo->data_hora_limite_inscricao)) }}"
-                                                data-hora-limite="{{ date('H:i', strtotime($jogo->data_hora_limite_inscricao)) }}"
-                                                data-responsavel="{{ $jogo->user_id }}"
-                                                data-descricao="{{ $jogo->descricao }}"
-                                                {{ $jogo->status === 'cancelado' ? 'disabled' : '' }}>
+                                                data-data-limite="{{ date('Y-m-d', strtotime($jogo->data_limite_inscricao)) }}"
+                                                data-hora-limite="{{ date('H:i', strtotime($jogo->data_limite_inscricao)) }}"
+                                                data-descricao="{{ $jogo->descricao ?? '' }}"
+                                                data-responsavel="{{ $jogo->user_id ?? '' }}"
+                                                {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}>
                                             <i class="bi bi-pencil"></i>
                                         </button>
 
-                                        {{-- Link para Inscrições --}}
-                                        <a href="{{ route('gerenciar_inscricoes', ['jogo' => $jogo->id]) }}" 
-                                        class="btn btn-sm btn-outline-info" title="Ver Inscrições">
-                                            <i class="bi bi-people"></i>
-                                        </a>
-
-                                        {{-- Botão Cancelar --}}
-                                        @if($jogo->status === 'aberto')
-                                            <form action="{{ route('cancelar_jogo') }}" method="POST" onsubmit="return confirm('Confirmar cancelamento da partida?')">
-                                                @csrf
-                                                <input type="hidden" name="id" value="{{ $jogo->id }}">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar Partida">
-                                                    <i class="bi bi-x-circle"></i>
+                                            {{-- Link para Inscrições --}}
+                                            <a href="{{ route('gerenciar_inscricoes', ['jogo' => $jogo->id]) }}" 
+                                            class="btn btn-sm btn-outline-info {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}" 
+                                            title="Ver Inscrições"
+                                            {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                                                <i class="bi bi-people"></i>
+                                            </a>
+                                            {{-- Lógica de Status --}}
+                                            @if($jogo->status === 'encerrado')
+                                                <button class="btn btn-sm btn-outline-secondary" disabled title="Partida Encerrada">
+                                                    <i class="bi bi-lock-fill"></i>
                                                 </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
+
+                                            @elseif($jogo->status === 'cancelado')
+                                                <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0" onsubmit="return confirm('Deseja reativar esta partida?')">
+                                                    @csrf
+                                                    <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
+                                                    <input type="hidden" name="status" value="aberto">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Reativar Partida">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                    </button>
+                                                </form>
+
+                                            @else
+                                                <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0" onsubmit="return confirm('Confirmar cancelamento da partida?')">
+                                                    @csrf
+                                                    <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
+                                                    <input type="hidden" name="status" value="cancelado">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar Partida">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted">Nenhum jogo cadastrado.</td>
                             </tr>
                         @endforelse
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -226,13 +279,17 @@
                                 <input type="time" name="hora_limite_inscricao" id="edit-hora-limite" class="form-control" required>
                             </div>
                             @if(auth()->user()->tipo === 'admin')
-                            <div class="col-12">
-                                <label class="form-label fw-bold small">Responsável</label>
-                                <select name="responsavel_id" id="edit-responsavel" class="form-select bg-light">
-                                    @foreach($organizadores as $org) <option value="{{ $org->id }}">{{ $org->name }}</option> @endforeach
-                                </select>
-                            </div>
-                            @endif
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small">Responsável</label>
+                                    <select name="responsavel_id" id="edit-responsavel" class="form-select bg-light" required>
+                                        <option value="" disabled>Selecione o responsável...</option>
+                                        <option value="{{ auth()->id() }}">Eu mesmo ({{auth()->user()->name}})</option>
+                                        @foreach($organizadores as $org) 
+                                            <option value="{{ $org->id }}">{{ $org->name }}</option> 
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Descrição</label>
                                 <textarea name="descricao" id="edit-descricao" class="form-control" rows="3"></textarea>
@@ -271,6 +328,11 @@
                     if(campoResp) campoResp.value = button.getAttribute('data-responsavel');
                 });
             }
+            @if(session('success'))
+                const toastEl = document.getElementById('toastSucesso');
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            @endif
         });
     </script>
 @endsection
