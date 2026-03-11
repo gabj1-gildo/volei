@@ -22,9 +22,11 @@
                 @forelse($titulos as $titulo)
                 <tr class="{{ !$titulo->ativo ? 'opacity-50 bg-light' : '' }}">
                     <td>
-                        <span class="fw-bold">{{ $titulo->nome }}</span>
+                        <span class="fw-bold {{ !$titulo->ativo ? 'text-decoration-line-through text-muted' : '' }}">
+                            {{ $titulo->nome }}
+                        </span>
                         @if(!$titulo->ativo)
-                            <span class="badge bg-danger ms-2">Inativo</span>
+                            <span class="badge bg-danger ms-2" style="font-size: 0.7rem;">INATIVO</span>
                         @endif
                     </td>
                     <td class="text-center">
