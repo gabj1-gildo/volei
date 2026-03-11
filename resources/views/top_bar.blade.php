@@ -24,12 +24,16 @@
                     background-color: rgba(255, 255, 255, 0.1);
                     color: #fff !important;
                 }
+                /* Garante que o item ativo (amarelo) mantenha a cor no hover */
+                .navbar-nav .nav-item .nav-link.text-warning:hover {
+                    color: #ffc107 !important; 
+                }
             </style>
 
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 ms-lg-3">
                 {{-- Visível para todos os logados --}} 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'text-warning fw-bold' : '' }}" href="{{ route('dashboard') }}">
                         <i class="bi bi-play-circle me-1"></i> Jogos
                     </a>
                 </li>
@@ -37,12 +41,12 @@
                 @if (Auth::user()->tipo == 'admin')
                     {{-- Visível para Admin (Gestão de Locais e Títulos) --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_locais') }}">
+                        <a class="nav-link {{ request()->routeIs('gerenciar_locais') ? 'text-warning fw-bold' : '' }}" href="{{ route('gerenciar_locais') }}">
                             <i class="bi bi-geo-alt me-1"></i> Locais
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_titulos') }}">
+                        <a class="nav-link {{ request()->routeIs('gerenciar_titulos') ? 'text-warning fw-bold' : '' }}" href="{{ route('gerenciar_titulos') }}">
                             <i class="bi bi-tag me-1"></i> Títulos
                         </a>
                     </li>
@@ -51,12 +55,12 @@
                 {{-- Visível para Admin e Organizador (Logística) --}}
                 @if(Auth::user()->tipo == 'admin' || Auth::user()->tipo == 'organizador')
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_jogos') }}">
+                        <a class="nav-link {{ request()->routeIs('gerenciar_jogos') ? 'text-warning fw-bold' : '' }}" href="{{ route('gerenciar_jogos') }}">
                             <i class="bi bi-calendar-event me-1"></i> Gerenciar Jogos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('gerenciar_inscricoes') }}">
+                        <a class="nav-link {{ request()->routeIs('gerenciar_inscricoes') ? 'text-warning fw-bold' : '' }}" href="{{ route('gerenciar_inscricoes') }}">
                             <i class="bi bi-card-checklist me-1"></i> Inscrições
                         </a>
                     </li>
@@ -65,7 +69,7 @@
                 {{-- Exclusivo para Admin (Gestão de Pessoas) --}}
                 @if(Auth::user()->tipo == 'admin')
                     <li class="nav-item ms-lg-2">
-                        <a class="nav-link text-warning" href="{{ route('gerenciar_usuarios') }}">
+                        <a class="nav-link {{ request()->routeIs('gerenciar_usuarios') ? 'text-warning fw-bold' : '' }}" href="{{ route('gerenciar_usuarios') }}">
                             <i class="bi bi-people-fill me-1"></i> Usuários
                         </a>
                     </li>
@@ -80,7 +84,7 @@
                 
                 {{-- Botões de Ação --}}
                 <div class="d-flex gap-2">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-light" title="Meu Perfil">
+                    <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-light 4nav-link {{ request()->routeIs('profile.edit') ? 'text-warning fw-bold' : '' }}" title="Meu Perfil">
                         <i class="bi bi-gear-fill"></i>
                     </a>
 
