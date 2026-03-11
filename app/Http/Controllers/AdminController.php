@@ -21,8 +21,9 @@ class AdminController extends Controller
             }])
             ->get()
             ->groupBy(fn($j) => $j->responsavel->name);
-        $titulos= Titulo::where('ativo', true)->get();
-        $locais= Local::where('ativo', true)->get();
+
+        $titulos = Titulo::where('ativo', true)->get();
+        $locais = Local::where('ativo', true)->get();
         
         // Busca apenas usuários que são organizadores para o Admin poder escolher
         $organizadores = User::where('tipo', 'organizador')->get();
@@ -41,16 +42,17 @@ class AdminController extends Controller
             'data_limite_inscricao' => 'required|date',
             'hora_limite_inscricao' => 'required',
             'limite_jogadores' => 'required|integer|min:1',
+            'descricao' => 'nullable|string|max:1000',
         ];
 
         $request->validate($rules);
 
         // 2. Processamento das Datas
-        $dataHoraJogo = $request->data . ' ' . $request->hora;
-        $dataHoraLimite = $request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao;
+        $dataHoraJogo = $request->data . ' ' . $request->hora . ':00';
+        $dataHoraLimite = $request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao . ':00';
 
-        // 3. Definição do Responsável (A regra solicitada)
-        $responsavelId = (auth()->user()->tipo === 'admin') 
+        // 3. Definição do Responsável
+        $responsavelId = (auth()->user()->tipo === 'admin' && $request->filled('responsavel_id')) 
                         ? $request->responsavel_id 
                         : auth()->id();
 
@@ -69,14 +71,14 @@ class AdminController extends Controller
         return redirect()->route('gerenciar_jogos')->with('success', 'Jogo criado com sucesso!');
     }
 
-    //editar jogo
-    public function editarJogo(Request $request)
+    // RENOMEADO DE editarJogo PARA atualizarJogo
+    public function atualizarJogo(Request $request)
     {
         // 1. Validação dos dados recebidos do formulário
         $request->validate([
-            'id'                    => 'required|exists:partidas,id', // troque 'partidas' pelo nome correto da sua tabela se for diferente
-            'titulo'                => 'required|integer',
-            'local'                 => 'required|integer',
+            'id'                    => 'required|exists:jogos,id',
+            'titulo'                => 'required|exists:titulos,id', // Corrigido para validar a existência na tabela
+            'local'                 => 'required|exists:locais,id', // Corrigido para validar a existência na tabela
             'data'                  => 'required|date',
             'hora'                  => 'required',
             'limite_jogadores'      => 'required|integer|min:1',
@@ -86,7 +88,7 @@ class AdminController extends Controller
         ]);
 
         // 2. Busca a partida no banco de dados
-        $partida = Partida::findOrFail($request->id);
+        $partida = Jogo::findOrFail($request->id);
 
         // 3. Junta as datas e horas para o formato do banco (Y-m-d H:i:s)
         $dataHora = $request->data . ' ' . $request->hora . ':00';
@@ -94,30 +96,32 @@ class AdminController extends Controller
 
         // 4. Atualiza os dados no banco
         $partida->update([
-            'titulo_id'             => $request->titulo,
-            'local_id'              => $request->local,
-            'data_hora'             => $dataHora,
-            'limite_jogadores'      => $request->limite_jogadores,
-            'data_limite_inscricao' => $dataLimite,
-            'descricao'             => $request->descricao,
-            // O responsavel_id só é atualizado se for enviado na request (ex: se for admin)
-            'responsavel_id'        => $request->has('responsavel_id') ? $request->responsavel_id : $partida->responsavel_id,
+            'titulo_id'                  => $request->titulo,
+            'local_id'                   => $request->local,
+            'data_hora'                  => $dataHora,
+            'limite_jogadores'           => $request->limite_jogadores,
+            'data_hora_limite_inscricao' => $dataLimite,
+            'descricao'                  => $request->descricao,
+            // Corrigido para pegar o user_id antigo caso o responsavel_id não seja enviado
+            'user_id'                    => $request->filled('responsavel_id') ? $request->responsavel_id : $partida->user_id,
         ]);
 
-        // 5. Retorna para a view com a mensagem de sucesso para o Toast
+        // 5. Retorna com a mensagem de sucesso
         return back()->with('success', 'Jogo atualizado com sucesso!');
     }
 
-    public function alterarStatusJogo(Request $request) {
-    $request->validate([
-        'status'     => 'required|string' // ou in:agendado,em_andamento,finalizado
-    ]);
+    public function alterarStatusJogo(Request $request) 
+    {
+        $request->validate([
+            'id_partida' => 'required|exists:jogos,id',
+            'status'     => 'required|string|in:aberto,inscricoes_encerradas,em_andamento,cancelado,encerrado' 
+        ]);
 
-    $jogo = Jogo::findOrFail($request->id_partida);
-    $jogo->update(['status' => $request->status]);
+        $jogo = Jogo::findOrFail($request->id_partida);
+        $jogo->update(['status' => $request->status]);
 
-    return back()->with('success', 'Status da partida atualizado!');
-}
+        return back()->with('success', 'Status da partida atualizado!');
+    }
 
     //-----------------------------------------------------------------------------------------//
 

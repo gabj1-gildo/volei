@@ -14,17 +14,17 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-6">
                     <label class="form-label fw-bold small text-secondary-emphasis">NOME COMPLETO</label>
-                    <input name="name" type="text" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->name }}" required>
+                    <input name="name" type="text" class="form-control form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->name }}" required>
                 </div>
                 
                 <div class="col-md-6">
                     <label class="form-label fw-bold small text-secondary-emphasis">NOME DE USUÁRIO</label>
-                    <input name="username" type="text" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->username }}" required>
+                    <input name="username" type="text" class="form-control form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->username }}" required>
                 </div>
 
                 <div class="col-md-12">
                     <label class="form-label fw-bold small text-secondary-emphasis">E-MAIL</label>
-                    <input name="email" type="email" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->email }}" required>
+                    <input name="email" type="email" class="form-control form-control-lg bg-light border-0 rounded-4 px-4" value="{{ auth()->user()->email }}" required>
                 </div>
             </div>
 

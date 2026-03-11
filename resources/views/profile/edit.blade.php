@@ -69,7 +69,6 @@
                     <h3 class="fw-bold mb-0">Meu <span style="color: var(--pira-orange);">Perfil</span></h3>
                     <p class="text-secondary small d-none d-sm-block">Gerencie suas informações</p>
                 </div>
-                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Inicio</a>
             </header>
 
             <div class="glass-card p-4 p-md-5">

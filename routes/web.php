@@ -51,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Gestão de Jogos
         Route::get('/jogos', [AdminController::class, 'gerenciarJogos'])->name('gerenciar_jogos');
         Route::post('/jogos/salvar', [AdminController::class, 'salvarJogo'])->name('salvar_jogo');
-        Route::get('/jogos/editar/{id}', [AdminController::class, 'editarJogo'])->name('editar_jogo');
+        Route::get('/jogos/editar', [AdminController::class, 'editarJogo'])->name('editar_jogo');
         Route::post('/jogos/atualizar', [AdminController::class, 'atualizarJogo'])->name('atualizar_jogo');
         Route::post('/jogos/status', [AdminController::class, 'alterarStatusJogo'])->name('alterar_status_partida');
         
