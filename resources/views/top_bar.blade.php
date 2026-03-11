@@ -75,7 +75,7 @@
             {{-- Área do Usuário (Direita) --}}
             <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
                 <span class="text-light small d-none d-lg-block">
-                    <i class="bi bi-person-circle me-1 text-secondary"></i> Olá, <strong>{{ explode(' ', Auth::user()->name)[0] }}</strong>
+                    <i class="bi bi-person-circle me-1 text-secondary-bold"></i> Olá, <strong>{{ explode(' ', Auth::user()->name)[0] }}</strong>
                 </span>
                 
                 {{-- Botões de Ação --}}

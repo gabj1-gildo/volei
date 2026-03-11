@@ -2,18 +2,27 @@
 
 @section('content')
 
-    {{-- mensagem de sucesso na ativação ou desativação de locais--}}
-    <div class="toast-container position-fixed top-0 end-0 p-3 mt-5" style="z-index: 1080">
-        <div id="toastSucesso" class="toast align-items-center text-white bg-success border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                    <span>{{ session('success') }}</span>
+    {{-- Exibição de Erros e Sucesso --}}
+    @if(session('success') || session('error'))
+        @php
+            $isSuccess = session('success') ? true : false;
+            $mensagem = session('success') ?? session('error');
+            $corFundo = $isSuccess ? 'bg-success' : 'bg-danger';
+            $icone = $isSuccess ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+        @endphp
+
+        <div class="toast-container position-fixed top-0 end-0 p-3 mt-5" style="z-index: 1080">
+            <div id="toastAlerta" class="toast align-items-center text-white {{ $corFundo }} border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+                <div class="d-flex">
+                    <div class="toast-body fw-bold">
+                        <i class="bi {{ $icone }} me-2"></i>
+                        <span>{{ $mensagem }}</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-    </div>
+    @endif
 
     <div class="container mt-5">
         <div class="card shadow-sm border-0">
@@ -168,22 +177,36 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const modalEditar = document.getElementById('modalEditarLocal');
-            if (modalEditar) {
-                modalEditar.addEventListener('show.bs.modal', function(event) {
+            
+            // 1. Lógica para preencher o Modal de Edição
+            const modalEditarLocal = document.getElementById('modalEditarLocal');
+            if (modalEditarLocal) {
+                modalEditarLocal.addEventListener('show.bs.modal', function(event) {
+                    // O botão que o usuário clicou
                     const button = event.relatedTarget;
-                    modalEditar.querySelector('#edit-id').value = button.getAttribute('data-id');
-                    modalEditar.querySelector('#edit-nome').value = button.getAttribute('data-nome');
-                    modalEditar.querySelector('#edit-endereco').value = button.getAttribute('data-endereco');
-                    modalEditar.querySelector('#edit-tipo').value = button.getAttribute('data-tipo');
+                    
+                    // Pega os dados escondidos no botão
+                    const id = button.getAttribute('data-id');
+                    const nome = button.getAttribute('data-nome');
+                    const endereco = button.getAttribute('data-endereco');
+                    const tipo = button.getAttribute('data-tipo');
+                    
+                    // Preenche os inputs do modal
+                    modalEditarLocal.querySelector('#edit-id').value = id;
+                    modalEditarLocal.querySelector('#edit-nome').value = nome;
+                    modalEditarLocal.querySelector('#edit-endereco').value = endereco;
+                    modalEditarLocal.querySelector('#edit-tipo').value = tipo;
                 });
             }
-            @if(session('success'))
-                const toastEl = document.getElementById('toastSucesso');
-                const toast = new bootstrap.Toast(toastEl);
-                toast.show();
+
+            // 2. Lógica para exibir os alertas (Toast)
+            @if(session('success') || session('error'))
+                const toastEl = document.getElementById('toastAlerta');
+                if (toastEl) {
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                }
             @endif
         });
-        
     </script>
 @endsection

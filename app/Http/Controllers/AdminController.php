@@ -233,7 +233,7 @@ public function salvarLocal(Request $request)
     ]);
 
     Local::create($request->all());
-    return redirect()->route('gerenciar_locais');
+    return redirect()->route('gerenciar_locais')->with('success', "Local criado com sucesso!");
 }
 
 public function atualizarLocal(Request $request)
@@ -247,7 +247,7 @@ public function atualizarLocal(Request $request)
 
     $local = Local::findOrFail($request->id);
     $local->update($request->only(['nome', 'endereco', 'tipo']));
-    return redirect()->route('gerenciar_locais');
+    return redirect()->route('gerenciar_locais')->with('success', "Local atualizado com sucesso!");
 }
 
 public function alternarStatusLocal(Request $request)

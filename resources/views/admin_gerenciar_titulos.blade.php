@@ -138,7 +138,7 @@
                     modalEditar.querySelector('#edit-descricao').value = button.getAttribute('data-descricao');
                 });
             }
-            @if(session('success'))
+            @if(session('success') || session('error'))
                 const toastEl = document.getElementById('toastSucesso');
                 const toast = new bootstrap.Toast(toastEl);
                 toast.show();
