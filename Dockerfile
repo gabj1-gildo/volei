@@ -1,5 +1,6 @@
 FROM php:8.4-cli
 
+# Instalação de dependências
 RUN apt-get update && apt-get install -y \
     git unzip libpng-dev libonig-dev libxml2-dev libpq-dev zip curl \
     && docker-php-ext-install \
@@ -10,17 +11,24 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 
+# Ajuste de permissões para a pasta storage e bootstrap/cache
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 RUN composer install --no-dev --optimize-autoloader \
     && php vendor/bin/rr get-binary
 
+# --- Configuração do Script de Entrada ---
+USER root
+# Copia o script para o sistema
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Dá permissão de execução
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 10000
 
+# Voltamos para o usuário padrão do app por segurança
 USER www-data
 
-CMD php artisan migrate --force && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan octane:start --server=roadrunner --host=0.0.0.0 --port=10000
+# O CMD agora chama o script que gerencia os dois processos
+CMD ["/usr/local/bin/entrypoint.sh"]
