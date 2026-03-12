@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vitrine-jogos', [JogadorController::class, 'index'])->name('jogos_disponiveis');
     Route::post('/inscrever', [JogadorController::class, 'inscrever'])->name('fazer_inscricao');
     Route::post('/cancelar-inscricao', [JogadorController::class, 'cancelarInscricao'])->name('cancelar_inscricao');
-
+    Route::get('/minhas-inscricoes', [JogadorController::class, 'minhasInscricoes'])->name('minhas_inscricoes');
 
     // --- GRUPO: ADMIN E ORGANIZADORES (Gestão da Logística) ---
     // Substituímos a função anônima pelo apelido (alias) do middleware que você criou manualmente

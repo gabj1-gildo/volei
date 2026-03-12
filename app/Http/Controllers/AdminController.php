@@ -7,6 +7,7 @@ use App\Models\Local;
 use App\Models\Titulo;
 use App\Models\Inscricao;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 
@@ -33,30 +34,44 @@ class AdminController extends Controller
 
     public function salvarJogo(Request $request)
     {
-        // 1. Validação
-        $rules = [
+        $request->validate([
             'titulo' => 'required|exists:titulos,id',
             'local' => 'required|exists:locais,id',
-            'data' => 'required|date',
+            // Impede datas retroativas no servidor
+            'data' => 'required|date|after_or_equal:today', 
             'hora' => 'required',
-            'data_limite_inscricao' => 'required|date',
+            'data_limite_inscricao' => 'required|date|after_or_equal:today|before_or_equal:data',
             'hora_limite_inscricao' => 'required',
             'limite_jogadores' => 'required|integer|min:1',
             'descricao' => 'nullable|string|max:1000',
-        ];
+        ], [
+            'data.after_or_equal' => 'O jogo não pode ser marcado para uma data passada.',
+            'data_limite_inscricao.before_or_equal' => 'A inscrição deve encerrar antes ou no dia do jogo.',
+        ]);
 
-        $request->validate($rules);
+        // 2. Processamento com Carbon
+        $dataHoraJogo = Carbon::parse($request->data . ' ' . $request->hora);
+        $dataHoraLimite = Carbon::parse($request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao);
+        $agora= Carbon::now();
 
-        // 2. Processamento das Datas
-        $dataHoraJogo = $request->data . ' ' . $request->hora . ':00';
-        $dataHoraLimite = $request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao . ':00';
+        // 3. Validações de Regra de Negócio
+        if ($dataHoraJogo->isPast()) {
+            return back()->withErrors(['data' => 'O jogo não pode ser marcado para uma data/hora passada.'])->withInput();
+        }
 
-        // 3. Definição do Responsável
+        if ($dataHoraLimite->gt($dataHoraJogo)) {
+            return back()->withErrors(['data_limite_inscricao' => 'As inscrições devem encerrar antes do início do jogo.'])->withInput();
+        }
+
+        if ($dataHoraLimite->isPast()) {
+            return back()->withErrors(['data_limite_inscricao' => 'A data limite de inscrição já passou.'])->withInput();
+        }
+
+        // 4. Definição do Responsável e Criação
         $responsavelId = (auth()->user()->tipo === 'admin' && $request->filled('responsavel_id')) 
                         ? $request->responsavel_id 
                         : auth()->id();
 
-        // 4. Criação
         Jogo::create([
             'user_id' => $responsavelId,
             'titulo_id' => $request->titulo,
@@ -71,14 +86,12 @@ class AdminController extends Controller
         return redirect()->route('gerenciar_jogos')->with('success', 'Jogo criado com sucesso!');
     }
 
-    // RENOMEADO DE editarJogo PARA atualizarJogo
     public function atualizarJogo(Request $request)
     {
-        // 1. Validação dos dados recebidos do formulário
         $request->validate([
             'id'                    => 'required|exists:jogos,id',
-            'titulo'                => 'required|exists:titulos,id', // Corrigido para validar a existência na tabela
-            'local'                 => 'required|exists:locais,id', // Corrigido para validar a existência na tabela
+            'titulo'                => 'required|exists:titulos,id',
+            'local'                 => 'required|exists:locais,id',
             'data'                  => 'required|date',
             'hora'                  => 'required',
             'limite_jogadores'      => 'required|integer|min:1',
@@ -87,26 +100,31 @@ class AdminController extends Controller
             'descricao'             => 'nullable|string|max:1000',
         ]);
 
-        // 2. Busca a partida no banco de dados
         $partida = Jogo::findOrFail($request->id);
+        
+        $dataHoraJogo = Carbon::parse($request->data . ' ' . $request->hora);
+        $dataHoraLimite = Carbon::parse($request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao);
 
-        // 3. Junta as datas e horas para o formato do banco (Y-m-d H:i:s)
-        $dataHora = $request->data . ' ' . $request->hora . ':00';
-        $dataLimite = $request->data_limite_inscricao . ' ' . $request->hora_limite_inscricao . ':00';
+        // Validação: Jogo deve ser após a inscrição
+        if ($dataHoraLimite->gt($dataHoraJogo)) {
+            return back()->withErrors(['data_limite_inscricao' => 'A data limite de inscrição não pode ser após o início do jogo.']);
+        }
 
-        // 4. Atualiza os dados no banco
+        // Validação: Se o jogo for alterado para o passado
+        if ($dataHoraJogo->isPast() && $partida->data_hora != $dataHoraJogo) {
+            return back()->withErrors(['data' => 'Você não pode alterar um jogo para uma data que já passou.']);
+        }
+
         $partida->update([
             'titulo_id'                  => $request->titulo,
             'local_id'                   => $request->local,
-            'data_hora'                  => $dataHora,
+            'data_hora'                  => $dataHoraJogo,
             'limite_jogadores'           => $request->limite_jogadores,
-            'data_hora_limite_inscricao' => $dataLimite,
+            'data_hora_limite_inscricao' => $dataHoraLimite,
             'descricao'                  => $request->descricao,
-            // Corrigido para pegar o user_id antigo caso o responsavel_id não seja enviado
             'user_id'                    => $request->filled('responsavel_id') ? $request->responsavel_id : $partida->user_id,
         ]);
 
-        // 5. Retorna com a mensagem de sucesso
         return back()->with('success', 'Jogo atualizado com sucesso!');
     }
 

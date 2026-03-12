@@ -59,7 +59,7 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col">
-                
+
                 {{-- Listagem de Jogos Disponíveis --}}
                 @if($jogos->isEmpty())
                     <div class="card shadow-sm border-0 p-5 text-center" style="border-radius: 1.5rem;">
@@ -77,7 +77,7 @@
                                         {{-- Cabeçalho do Cartão (Título) --}}
                                         <div class="d-flex align-items-center mb-3 pb-3 border-bottom border-opacity-50">
                                             <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px;">
-                                                <i class="bi bi-trophy-fill fs-5"></i>
+                                                <i class="bi fs-2">🏐</i>
                                             </div>
                                             <h4 class="card-title mb-0 fw-bold" style="font-size: 1.2rem; line-height: 1.2;">
                                                 {{ $jogo->titulo->nome ?? 'Título' }}
@@ -109,12 +109,18 @@
                                                     <span class="fw-medium">{{ date('d/m/Y H:i', strtotime($jogo->data_hora_limite_inscricao)) }}</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                                        <p class="card-text small text-secondary flex-grow-1 border-start border-2 border-primary ps-3 py-1 bg-light rounded-end">
-                                            {{ Str::limit($jogo->descricao, 90) }}
-                                        </p>
-                                        
+
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-exclamation-circle text-info mt-1 me-2"></i>
+                                                <div>
+                                                    <span class="d-block small text-info fw-bold">DESCRIÇÃO</span>
+                                                    <p class="card-text small text-secondary flex-grow-1 border-start border-2 border-primary ps-3 py-1 bg-light rounded-end">
+                                                        {{ Str::limit($jogo->descricao, 90) }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                        </div>                                        
                                         <div class="d-flex justify-content-between align-items-center mb-4">
                                             <div class="small">
                                                 <span class="text-muted"><i class="bi bi-person-badge"></i> Org:</span> 

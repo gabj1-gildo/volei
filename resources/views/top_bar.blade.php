@@ -12,7 +12,6 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            
             {{-- Estilo para o hover dos links --}}
             <style>
                 .navbar-nav .nav-item .nav-link {
@@ -35,6 +34,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('dashboard') ? 'text-warning fw-bold' : '' }}" href="{{ route('dashboard') }}">
                         <i class="bi bi-play-circle me-1"></i> Jogos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('minhas_inscricoes') ? 'text-warning fw-bold' : '' }}" href="{{ route('minhas_inscricoes') }}">
+                        <i class="bi bi bi-journal-check me-1"></i> Minhas Inscrições
                     </a>
                 </li>
 

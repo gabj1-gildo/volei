@@ -20,7 +20,7 @@ class EncerrarJogosExpirados extends Command
 
         // 2. Executamos a atualização em massa no banco
         $quantidade = Jogo::where('status', '!=', 'encerrado') // Só quem não está encerrado
-            ->where('data_hora_limite_inscricao', '<=', $agora)           // Onde a data já passou
+            ->where('data_hora', '<=', $agora)           // Onde a data já passou
             ->update(['status' => 'encerrado']);           // Altera a coluna status
 
         // 3. Log para você visualizar no console do Render

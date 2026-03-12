@@ -78,7 +78,6 @@
     @endif
 
     <div class="container mt-5">
-        
         {{-- Cabeçalho Principal da Página --}}
         <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
             <h4 class="mb-0 fw-bold"><i class="bi bi-gear-fill me-2 text-primary"></i>Gerenciamento de Jogos</h4>
@@ -158,7 +157,6 @@
                                                                 $badgeClass = match($jogo->status) {
                                                                     'aberto' => 'bg-success',
                                                                     'inscricoes_encerradas' => 'bg-warning text-dark',
-                                                                    'em_andamento' => 'bg-primary',
                                                                     'cancelado' => 'bg-danger',
                                                                     'encerrado' => 'bg-secondary',
                                                                     default => 'bg-light text-dark'
@@ -175,7 +173,7 @@
                                                 <div class="d-flex justify-content-between align-items-center mb-4 p-2 bg-light rounded-3 border">
                                                     <span class="small fw-bold text-muted"><i class="bi bi-people-fill me-1"></i> Ocupação:</span>
                                                     <span class="badge rounded-pill px-3 py-2 bg-info text-dark border border-info border-opacity-25 shadow-sm">
-                                                        {{ $jogo->inscricoes_count }} / {{ $jogo->limite_jogadores }} vagas
+                                                        {{ $jogo->limite_jogadores - $jogo->inscricoes_count }} / {{ $jogo->limite_jogadores }} vagas
                                                     </span>
                                                 </div>
 
@@ -253,6 +251,11 @@
             <div class="modal-content border-0 shadow">
                 <form action="{{ route('salvar_jogo') }}" method="POST">
                     @csrf
+
+                    @php
+                        $hoje = date('Y-m-d');
+                    @endphp
+
                     <div class="modal-header bg-dark text-white">
                         <h5 class="modal-title fw-bold">Cadastrar Nova Partida</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -275,7 +278,11 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold small">Data</label>
-                                <input type="date" name="data" class="form-control" required>
+                                <input type="date" name="data" id="data_jogo_novo" min="{{ $hoje }}" 
+                                    class="form-control @error('data') is-invalid @enderror"
+                                    value="{{ old('data', $hoje) }}" required>
+
+                                @error('data') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold small">Hora</label>
@@ -283,15 +290,19 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold small">Limite de Vagas</label>
-                                <input type="number" name="limite_jogadores" class="form-control" min="1" required>
+                                <input type="number" name="limite_jogadores" class="form-control" min="4" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-danger">Data Limite Inscrição</label>
-                                <input type="date" name="data_limite_inscricao" class="form-control border-danger-subtle" required>
+                                <label class="form-label fw-bold small text-warning">Data Limite Inscrição</label>
+                                <input type="date" name="data_limite_inscricao" id="data_limite_novo" min="{{ $hoje }}"
+                                    class="form-control border-warning-subtle @error('data_limite_inscricao') is-invalid @enderror" 
+                                    value="{{ old('data_limite_inscricao', $hoje) }}" required>
+
+                                @error('data_limite_inscricao') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-danger">Hora Limite</label>
-                                <input type="time" name="hora_limite_inscricao" class="form-control border-danger-subtle" required>
+                                <label class="form-label fw-bold small text-warning">Hora Limite</label>
+                                <input type="time" name="hora_limite_inscricao" class="form-control border-warning-subtle" required>
                             </div>
                             @if(auth()->user()->tipo === 'admin')
                             <div class="col-12">
@@ -306,7 +317,7 @@
                             @endif
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Descrição</label>
-                                <textarea name="descricao" class="form-control" rows="3"></textarea>
+                                <textarea name="descricao" class="form-control" rows="3" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -325,63 +336,109 @@
             <div class="modal-content border-0 shadow">
                 <form action="{{ route('atualizar_jogo') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="id" id="edit-id">
+
+                    @php
+                        $hoje = date('Y-m-d');
+                    @endphp
+
+                    <input type="hidden" name="id" id="edit-id" value="{{ old('id') }}">
+                    
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title fw-bold">Editar Partida</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
+
                     <div class="modal-body p-4">
                         <div class="row g-3">
+                            {{-- Título --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Título</label>
-                                <select name="titulo" id="edit-titulo" class="form-select" required>
-                                    @foreach($titulos as $t) <option value="{{$t->id}}">{{$t->nome}}</option> @endforeach
+                                <select name="titulo" id="edit-titulo" class="form-select @error('titulo') is-invalid @enderror" required>
+                                    @foreach($titulos as $t) 
+                                        <option value="{{$t->id}}" {{ old('titulo') == $t->id ? 'selected' : '' }}>{{$t->nome}}</option> 
+                                    @endforeach
                                 </select>
+                                @error('titulo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Local --}}
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small">Local</label>
-                                <select name="local" id="edit-local" class="form-select" required>
-                                    @foreach($locais as $l) <option value="{{$l->id}}">{{$l->nome}}</option> @endforeach
+                                <select name="local" id="edit-local" class="form-select @error('local') is-invalid @enderror" required>
+                                    @foreach($locais as $l) 
+                                        <option value="{{$l->id}}" {{ old('local') == $l->id ? 'selected' : '' }}>{{$l->nome}}</option> 
+                                    @endforeach
                                 </select>
+                                @error('local') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Data do Jogo --}}
                             <div class="col-md-4">
-                                <label class="form-label fw-bold small">Data</label>
-                                <input type="date" name="data" id="edit-data" class="form-control" required>
+                                <label class="form-label fw-bold small text-primary">Data do Jogo</label>
+                                <input type="date" name="data" id="edit-data" 
+                                    class="form-control @error('data') is-invalid @enderror" 
+                                    min="{{ $hoje }}" value="{{ old('data') }}" required>
+                                @error('data') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Hora do Jogo --}}
                             <div class="col-md-4">
-                                <label class="form-label fw-bold small">Hora</label>
-                                <input type="time" name="hora" id="edit-hora" class="form-control" required>
+                                <label class="form-label fw-bold small text-primary">Hora</label>
+                                <input type="time" name="hora" id="edit-hora" 
+                                    class="form-control @error('hora') is-invalid @enderror" 
+                                    value="{{ old('hora') }}" required>
+                                @error('hora') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Vagas --}}
                             <div class="col-md-4">
                                 <label class="form-label fw-bold small">Vagas</label>
-                                <input type="number" name="limite_jogadores" id="edit-limite" class="form-control" required>
+                                <input type="number" name="limite_jogadores" id="edit-limite" 
+                                    class="form-control @error('limite_jogadores') is-invalid @enderror" 
+                                    min="1" value="{{ old('limite_jogadores') }}" required>
+                                @error('limite_jogadores') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Data Limite Inscrição --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-danger">Data Limite Inscrição</label>
-                                <input type="date" name="data_limite_inscricao" id="edit-data-limite" class="form-control border-danger-subtle" required>
+                                <label class="form-label fw-bold small text-warning">Data Limite Inscrição</label>
+                                <input type="date" name="data_limite_inscricao" id="edit-data-limite" 
+                                    class="form-control border-warning-subtle @error('data_limite_inscricao') is-invalid @enderror" 
+                                    min="{{ $hoje }}" value="{{ old('data_limite_inscricao') }}" required>
+                                @error('data_limite_inscricao') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Hora Limite Inscrição --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-bold small text-danger">Hora Limite</label>
-                                <input type="time" name="hora_limite_inscricao" id="edit-hora-limite" class="form-control border-danger-subtle" required>
+                                <label class="form-label fw-bold small text-warning">Hora Limite</label>
+                                <input type="time" name="hora_limite_inscricao" id="edit-hora-limite" 
+                                    class="form-control border-warning-subtle @error('hora_limite_inscricao') is-invalid @enderror" 
+                                    value="{{ old('hora_limite_inscricao') }}" required>
+                                @error('hora_limite_inscricao') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            {{-- Responsável (Admin) --}}
                             @if(auth()->user()->tipo === 'admin')
                                 <div class="col-12">
                                     <label class="form-label fw-bold small">Responsável</label>
-                                    <select name="responsavel_id" id="edit-responsavel" class="form-select bg-light" required>
-                                        <option value="" disabled>Selecione o responsável...</option>
+                                    <select name="responsavel_id" id="edit-responsavel" class="form-select bg-light">
                                         <option value="{{ auth()->id() }}">Eu mesmo ({{auth()->user()->name}})</option>
                                         @foreach($organizadores as $org) 
-                                            <option value="{{ $org->id }}">{{ $org->name }}</option> 
+                                            <option value="{{ $org->id }}" {{ old('responsavel_id') == $org->id ? 'selected' : '' }}>{{ $org->name }}</option> 
                                         @endforeach
                                     </select>
                                 </div>
                             @endif
+
+                            {{-- Descrição --}}
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Descrição</label>
-                                <textarea name="descricao" id="edit-descricao" class="form-control" rows="3"></textarea>
+                                <textarea name="descricao" id="edit-descricao" class="form-control @error('descricao') is-invalid @enderror" rows="3" required>{{ old('descricao') }}</textarea>
+                                @error('descricao') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer bg-light border-top-0">
                         <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success btn-sm rounded-pill px-4 fw-bold">Atualizar Partida</button>
@@ -393,6 +450,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const dataHoje = "{{ date('Y-m-d') }}";
+
+            // --- INÍCIO DA PARTE MANTIDA INTACTA ---
             // Script para preencher o Modal de Edição
             const modalEditarJogo = document.getElementById('modalEditarJogo');
             if (modalEditarJogo) {
@@ -413,6 +473,9 @@
                     // Responsável (campo presente apenas se admin)
                     const campoResp = modalEditarJogo.querySelector('#edit-responsavel');
                     if(campoResp) campoResp.value = button.getAttribute('data-responsavel');
+
+                    // DISPARO DE EVENTO PARA ATUALIZAR REGRAS AO ABRIR EDIÇÃO
+                    modalEditarJogo.querySelector('#edit-data').dispatchEvent(new Event('change'));
                 });
             }
 
@@ -422,6 +485,52 @@
                 if (toastEl) {
                     const toast = new bootstrap.Toast(toastEl);
                     toast.show();
+                }
+            @endif
+            // --- FIM DA PARTE MANTIDA INTACTA ---
+
+            // --- LÓGICA DE CONTROLE DE HORÁRIOS (NOVO E EDITAR) ---
+            function aplicarRegrasDataHora(idData, idHora, idDataLimite) {
+                const inputData = document.getElementById(idData);
+                const inputHora = document.getElementById(idHora);
+                const inputLimite = document.getElementById(idDataLimite);
+
+                if (!inputData || !inputHora) return;
+
+                function validar() {
+                    // Se for hoje, a hora mínima é a atual
+                    if (inputData.value === dataHoje) {
+                        const agora = new Date();
+                        const horaMin = agora.getHours().toString().padStart(2, '0') + ":" + 
+                                    agora.getMinutes().toString().padStart(2, '0');
+                        inputHora.min = horaMin;
+                    } else {
+                        inputHora.removeAttribute('min');
+                    }
+
+                    // Sincroniza o limite de inscrição com a data do jogo
+                    if (inputLimite) {
+                        inputLimite.max = inputData.value;
+                    }
+                }
+
+                inputData.addEventListener('change', validar);
+                validar();
+            }
+
+            // Ativa para os IDs do Modal Novo (ajuste os IDs conforme seu HTML)
+            aplicarRegrasDataHora('data_jogo_novo', 'hora_jogo_novo', 'data_limite_novo');
+
+            // Ativa para os IDs do Modal Editar
+            aplicarRegrasDataHora('edit-data', 'edit-hora', 'edit-data-limite');
+
+            // --- PERSISTÊNCIA DOS MODAIS EM CASO DE ERRO DE VALIDAÇÃO ---
+            @if($errors->any())
+                const modalAlvo = "{{ old('id') ? 'modalEditarJogo' : 'modalNovoJogo' }}";
+                const element = document.getElementById(modalAlvo);
+                if (element) {
+                    const myModal = new bootstrap.Modal(element);
+                    myModal.show();
                 }
             @endif
         });
