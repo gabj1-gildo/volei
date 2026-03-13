@@ -1,4 +1,5 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Minhas Inscrições')
 
 @section('content')
     <style>
@@ -170,10 +171,10 @@
                 </div>
             @empty
                 <div class="col-12 text-center py-5">
-                    <div class="display-1 text-muted opacity-25 mb-3">🏐</div>
+                    <div class="display-1 mb-3">🏐</div>
                     <h4 class="text-secondary fw-bold">Você ainda não tem inscrições.</h4>
                     <p class="text-muted">Que tal procurar uma partida para jogar hoje?</p>
-                    <a href="{{ route('home') }}" class="btn btn-lg btn-primary mt-3 rounded-pill px-5 shadow">Ver Jogos Disponíveis</a>
+                    <a href="{{ route('dashboard') }}" class="btn btn-lg btn-primary mt-3 rounded-pill px-5 shadow">Ver Jogos Disponíveis</a>
                 </div>
             @endforelse
         </div>

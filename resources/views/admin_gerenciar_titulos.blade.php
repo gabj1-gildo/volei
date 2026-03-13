@@ -1,4 +1,5 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Gerenciar Títulos')
 
 @section('content')
 

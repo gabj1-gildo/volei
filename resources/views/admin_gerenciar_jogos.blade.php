@@ -1,4 +1,5 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Gerenciar Jogos')
 
 @section('content')
 
@@ -302,7 +303,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-warning">Hora Limite</label>
-                                <input type="time" name="hora_limite_inscricao" class="form-control border-warning-subtle" required>
+                                <input type="time" name="hora_limite_inscricao" id="hora_jogo_novo"
+                                    class="form-control border-warning-subtle" required>
                             </div>
                             @if(auth()->user()->tipo === 'admin')
                             <div class="col-12">

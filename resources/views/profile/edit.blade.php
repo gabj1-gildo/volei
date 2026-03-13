@@ -1,4 +1,5 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Minha Conta')
 
 @section('content')
     {{-- Necessário para o formulário do perfil funcionar (mensagens de 'Salvo') --}}

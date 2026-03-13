@@ -19,9 +19,12 @@ return new class extends Migration
             $table->string('username')->unique()->nullable();
             $table->timestamp('username_updated_at')->nullable();
             $table->string('password');
-            $table->enum('tipo', ['jogador', 'organizador', 'admin'])->default('jogador'); // Adicionando campo tipo
+            $table->enum('tipo', ['jogador', 'organizador', 'admin'])->default('jogador');
             $table->rememberToken();
             $table->timestamps();
+            
+            // Adicionando a coluna 'deleted_at' para a desativação (Soft Deletes)
+            $table->softDeletes(); 
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

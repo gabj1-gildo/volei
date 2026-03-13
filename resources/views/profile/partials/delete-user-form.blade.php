@@ -22,7 +22,7 @@
                     
                     <div class="d-flex justify-content-end gap-2">
                         <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-danger rounded-pill px-4">Excluir para sempre</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Desativar</button>
                     </div>
                 </form>
             </div>

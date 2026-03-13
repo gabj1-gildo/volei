@@ -1,4 +1,5 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Jogos Disponíveis')
 
 @section('content')
 
@@ -111,14 +112,18 @@
                                             </div>
 
                                             <div class="d-flex align-items-start">
-                                                <i class="bi bi-exclamation-circle text-info mt-1 me-2"></i>
-                                                <div>
-                                                    <span class="d-block small text-info fw-bold">DESCRIÇÃO</span>
-                                                    <p class="card-text small text-secondary flex-grow-1 border-start border-2 border-primary ps-3 py-1 bg-light rounded-end">
-                                                        {{ Str::limit($jogo->descricao, 90) }}
-                                                    </p>
+                                                {{-- O flex-shrink-0 impede que o ícone seja esmagado pelo texto --}}
+                                                <i class="bi bi-exclamation-circle text-info mt-1 me-2 flex-shrink-0"></i>
+                                                
+                                                {{-- O flex-grow-1 diz para usar o espaço restante, e o overflow-hidden trava o limite --}}
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <span class="d-block small text-info fw-bold mb-1">DESCRIÇÃO</span>
+                                                    
+                                                    {{-- text-break força palavras muito longas a quebrarem --}}
+                                                    {{-- white-space: pre-wrap; respeita as quebras de linha (Enter) que o organizador digitou --}}
+                                                    <p class="card-text small text-info fw-bold border-start border-2 border-primary ps-3 py-2 bg-light rounded-end text-break mb-0" style="white-space: pre-wrap;">{{ Str::limit($jogo->descricao, 110) }}</p>
                                                 </div>
-                                            </div>
+                                            </div>                                            
 
                                         </div>                                        
                                         <div class="d-flex justify-content-between align-items-center mb-4">

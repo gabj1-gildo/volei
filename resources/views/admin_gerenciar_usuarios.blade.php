@@ -1,4 +1,6 @@
 @extends('layouts.main_layout')
+@section('title', 'PiraVôlei | Gerenciar Usuários')
+
 @section('content')
 
     {{-- Exibição de Erros e Sucesso --}}

@@ -2,21 +2,17 @@
 
 namespace App\Models;
 
-
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
-
+use Illuminate\Database\Eloquent\SoftDeletes; // 1. Adicione a importação aqui no topo
 
 class User extends Authenticatable implements MustVerifyEmail 
 {
-     use HasFactory, Notifiable;
+    // 2. Coloque o SoftDeletes aqui dentro junto com os outros
+    use HasFactory, Notifiable, SoftDeletes; 
     
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -28,7 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'tipo',
-        'username_updated_at', // Adicione este
+        'username_updated_at',
     ];
 
     /**
@@ -55,8 +51,13 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    //funções alem das padrões
+    // funções alem das padrões
     public function inscricoes() {
         return $this->hasMany(Inscricao::class);
+    }
+    
+    // Aproveitei para deixar a relação de jogos pronta caso você precise listar os jogos desse usuário no futuro
+    public function jogos() {
+        return $this->hasMany(Jogo::class);
     }
 }

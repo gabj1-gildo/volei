@@ -6,7 +6,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -19,13 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test-mail', function () {
-    Mail::raw('Teste OK', function ($m) {
-        $m->to('gildojunior032@gmail.com')->subject('Teste');
-    });
-    return 'enviado';
-});
-
 // --- GRUPO DE USUÁRIOS AUTENTICADOS ---
 Route::middleware(['auth', 'verified'])->group(function () {
     
@@ -36,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    
     // FUNÇÕES DO JOGADOR
     Route::get('/vitrine-jogos', [JogadorController::class, 'index'])->name('jogos_disponiveis');
     Route::post('/inscrever', [JogadorController::class, 'inscrever'])->name('fazer_inscricao');
