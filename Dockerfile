@@ -1,7 +1,3 @@
-# 1. Puxa a imagem oficial do RoadRunner apenas para extrair o executável
-FROM ghcr.io/roadrunner-server/roadrunner:latest AS roadrunner
-
-# 2. Inicia a sua imagem PHP original
 FROM php:8.4-cli
 
 # Instalação de dependências
@@ -15,16 +11,12 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 
-# 3. Copia o binário pronto do RoadRunner direto para a raiz do seu projeto!
-COPY --from=roadrunner /usr/bin/rr /var/www/rr
-
-# Ajuste de permissões (Adicionei a permissão de execução para o arquivo rr)
+# Ajuste de permissões para a pasta storage e bootstrap/cache
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache \
-    && chmod +x /var/www/rr
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# 4. Roda o composer SEM o comando get-binary
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader \
+    && php vendor/bin/rr get-binary
 
 # --- Configuração do Script de Entrada ---
 USER root
