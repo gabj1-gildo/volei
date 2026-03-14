@@ -80,9 +80,9 @@
                 @include('profile.partials.update-password-form')
             </div>
 
-            <div class="glass-card p-4 p-md-5 border-start border-danger border-4">
+            {{-- <div class="glass-card p-4 p-md-5 border-start border-danger border-4">
                 @include('profile.partials.delete-user-form')
-            </div>
+            </div> --}}
 
         </div>
     </div>

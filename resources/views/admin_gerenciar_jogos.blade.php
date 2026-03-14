@@ -178,62 +178,64 @@
                                                     </span>
                                                 </div>
 
-                                                {{-- Ações de Gerenciamento --}}
-                                                <div class="mt-auto pt-3 border-top border-opacity-50 d-flex gap-2 justify-content-center">
-                                                    
-                                                    {{-- Editar --}}
-                                                    <button class="btn btn-outline-primary flex-fill btn-action-pira" 
-                                                            data-bs-toggle="modal" 
-                                                            data-bs-target="#modalEditarJogo"
-                                                            data-id="{{ $jogo->id }}"
-                                                            data-titulo="{{ $jogo->titulo_id ?? '' }}"
-                                                            data-local="{{ $jogo->local_id ?? '' }}"
-                                                            data-data="{{ date('Y-m-d', strtotime($jogo->data_hora)) }}"
-                                                            data-hora="{{ date('H:i', strtotime($jogo->data_hora)) }}"
-                                                            data-limite="{{ $jogo->limite_jogadores }}"
-                                                            data-data-limite="{{ date('Y-m-d', strtotime($jogo->data_hora_limite_inscricao)) }}"
-                                                            data-hora-limite="{{ date('H:i', strtotime($jogo->data_hora_limite_inscricao)) }}"
-                                                            data-descricao="{{ $jogo->descricao ?? '' }}"
-                                                            data-responsavel="{{ $jogo->user_id ?? '' }}"
-                                                            title="Editar Jogo"
-                                                            {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}>
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
+                                                @if(Auth::user()->tipo === 'admin' || (Auth::user()->tipo === 'organizador' && Auth::user()->id === $jogo->user_id))
 
-                                                    {{-- Inscrições --}}
-                                                    <a href="{{ route('gerenciar_inscricoes', ['jogo' => $jogo->id]) }}" 
-                                                       class="btn btn-outline-info flex-fill btn-action-pira {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}" 
-                                                       title="Ver Inscrições"
-                                                       {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'tabindex="-1" aria-disabled="true"' : '' }}>
-                                                        <i class="bi bi-list-check"></i>
-                                                    </a>
-                                                    
-                                                    {{-- Status (Cancelar / Reativar) --}}
-                                                    @if($jogo->status === 'encerrado')
-                                                        <button class="btn btn-outline-secondary flex-fill btn-action-pira" disabled title="Partida Encerrada">
-                                                            <i class="bi bi-lock-fill"></i>
+                                                    {{-- Ações de Gerenciamento --}}
+                                                    <div class="mt-auto pt-3 border-top border-opacity-50 d-flex gap-2 justify-content-center">
+                                                        
+                                                        {{-- Editar --}}
+                                                        <button class="btn btn-outline-primary flex-fill btn-action-pira" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#modalEditarJogo"
+                                                                data-id="{{ $jogo->id }}"
+                                                                data-titulo="{{ $jogo->titulo_id ?? '' }}"
+                                                                data-local="{{ $jogo->local_id ?? '' }}"
+                                                                data-data="{{ date('Y-m-d', strtotime($jogo->data_hora)) }}"
+                                                                data-hora="{{ date('H:i', strtotime($jogo->data_hora)) }}"
+                                                                data-limite="{{ $jogo->limite_jogadores }}"
+                                                                data-data-limite="{{ date('Y-m-d', strtotime($jogo->data_hora_limite_inscricao)) }}"
+                                                                data-hora-limite="{{ date('H:i', strtotime($jogo->data_hora_limite_inscricao)) }}"
+                                                                data-descricao="{{ $jogo->descricao ?? '' }}"
+                                                                data-responsavel="{{ $jogo->user_id ?? '' }}"
+                                                                title="Editar Jogo"
+                                                                {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}>
+                                                            <i class="bi bi-pencil"></i>
                                                         </button>
-                                                    @elseif($jogo->status === 'cancelado')
-                                                        <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0 flex-fill d-flex" onsubmit="return confirm('Deseja reativar esta partida?')">
-                                                            @csrf
-                                                            <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
-                                                            <input type="hidden" name="status" value="aberto">
-                                                            <button type="submit" class="btn btn-outline-success w-100 btn-action-pira" title="Reativar Partida">
-                                                                <i class="bi bi-arrow-clockwise"></i>
+
+                                                        {{-- Inscrições --}}
+                                                        <a href="{{ route('gerenciar_inscricoes', ['jogo' => $jogo->id]) }}" 
+                                                        class="btn btn-outline-info flex-fill btn-action-pira {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'disabled' : '' }}" 
+                                                        title="Ver Inscrições"
+                                                        {{ in_array($jogo->status, ['cancelado', 'encerrado']) ? 'tabindex="-1" aria-disabled="true"' : '' }}>
+                                                            <i class="bi bi-list-check"></i>
+                                                        </a>
+                                                        
+                                                        {{-- Status (Cancelar / Reativar) --}}
+                                                        @if($jogo->status === 'encerrado')
+                                                            <button class="btn btn-outline-secondary flex-fill btn-action-pira" disabled title="Partida Encerrada">
+                                                                <i class="bi bi-lock-fill"></i>
                                                             </button>
-                                                        </form>
-                                                    @else
-                                                        <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0 flex-fill d-flex" onsubmit="return confirm('Confirmar cancelamento da partida?')">
-                                                            @csrf
-                                                            <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
-                                                            <input type="hidden" name="status" value="cancelado">
-                                                            <button type="submit" class="btn btn-outline-danger w-100 btn-action-pira" title="Cancelar Partida">
-                                                                <i class="bi bi-x-circle"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                                
+                                                        @elseif($jogo->status === 'cancelado')
+                                                            <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0 flex-fill d-flex" onsubmit="return confirm('Deseja reativar esta partida?')">
+                                                                @csrf
+                                                                <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
+                                                                <input type="hidden" name="status" value="aberto">
+                                                                <button type="submit" class="btn btn-outline-success w-100 btn-action-pira" title="Reativar Partida">
+                                                                    <i class="bi bi-arrow-clockwise"></i>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <form action="{{ route('alterar_status_partida') }}" method="POST" class="m-0 flex-fill d-flex" onsubmit="return confirm('Confirmar cancelamento da partida?')">
+                                                                @csrf
+                                                                <input type="hidden" name="id_partida" value="{{ $jogo->id }}">
+                                                                <input type="hidden" name="status" value="cancelado">
+                                                                <button type="submit" class="btn btn-outline-danger w-100 btn-action-pira" title="Cancelar Partida">
+                                                                    <i class="bi bi-x-circle"></i>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
