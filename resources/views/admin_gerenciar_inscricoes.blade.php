@@ -141,7 +141,9 @@
                                 <div class="list-group-item bg-transparent text-muted small fw-bold py-2 d-none d-md-flex px-4">
                                     <div style="flex: 2;">JOGADOR</div>
                                     <div style="flex: 1;" class="text-center">STATUS</div>
-                                    <div style="flex: 1;" class="text-center">AÇÕES</div>
+                                    @if(Auth::user()->tipo === 'admin' || (Auth::user()->tipo === 'organizador' && Auth::user()->id === $jogo->user_id))
+                                        <div style="flex: 1;" class="text-center">AÇÕES</div>
+                                    @endif
                                 </div>
                             @endif
 
