@@ -24,8 +24,8 @@ class EncerrarJogosExpirados extends Command
             ->update(['status' => 'encerrado']);           // Altera a coluna status
 
         // 3. Log para você visualizar no console do Render
-        if ($quantidade > 0) {
-            $this->info("Sucesso: {$quantidade} jogos foram atualizados para 'encerrado'.");
-        }
+        // if ($quantidade > 0) {
+        //     $this->info("Sucesso: {$quantidade} jogos foram atualizados para 'encerrado'.");
+        // }
     }
 }
