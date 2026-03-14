@@ -174,22 +174,23 @@
                                         </span>
                                     </div>
 
-                                    {{-- Ações --}}
-                                    <div class="w-100 mt-3 mt-md-0 d-flex justify-content-md-center" style="flex: 1;">
-                                        <form action="{{ route('alterar_status_inscricao') }}" method="POST" class="m-0 d-flex gap-2 w-100 justify-content-start justify-content-md-center">
-                                            @csrf
-                                            <input type="hidden" name="id_inscricao" value="{{ $inscricao->id }}">
-                                            
-                                            <button type="submit" name="status" value="confirmado" class="btn btn-outline-success btn-action-pira flex-fill flex-md-grow-0" {{ $inscricao->status === 'confirmado' ? 'disabled' : '' }}>
-                                                <i class="bi bi-check-lg me-1"></i> Aprovar
-                                            </button>
+                                    @if(Auth::user()->tipo === 'admin' || (Auth::user()->tipo === 'organizador' && Auth::user()->id === $jogo->user_id))
+                                        {{-- Ações --}}
+                                        <div class="w-100 mt-3 mt-md-0 d-flex justify-content-md-center" style="flex: 1;">
+                                            <form action="{{ route('alterar_status_inscricao') }}" method="POST" class="m-0 d-flex gap-2 w-100 justify-content-start justify-content-md-center">
+                                                @csrf
+                                                <input type="hidden" name="id_inscricao" value="{{ $inscricao->id }}">
+                                                
+                                                <button type="submit" name="status" value="confirmado" class="btn btn-outline-success btn-action-pira flex-fill flex-md-grow-0" {{ $inscricao->status === 'confirmado' ? 'disabled' : '' }}>
+                                                    <i class="bi bi-check-lg me-1"></i> Aprovar
+                                                </button>
 
-                                            <button type="submit" name="status" value="cancelada" class="btn btn-outline-danger btn-action-pira flex-fill flex-md-grow-0" {{ $inscricao->status === 'cancelada' ? 'disabled' : '' }}>
-                                                <i class="bi bi-x-lg me-1"></i> Recusar
-                                            </button>
-                                        </form>
-                                    </div>
-                                    
+                                                <button type="submit" name="status" value="cancelada" class="btn btn-outline-danger btn-action-pira flex-fill flex-md-grow-0" {{ $inscricao->status === 'cancelada' ? 'disabled' : '' }}>
+                                                    <i class="bi bi-x-lg me-1"></i> Recusar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             @empty
                                 <div class="text-center py-5 text-secondary">
