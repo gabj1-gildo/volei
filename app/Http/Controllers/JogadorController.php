@@ -21,7 +21,7 @@ class JogadorController extends Controller
                 $query->where('user_id', $user->id);
             }])
             ->whereNotIn('status', ['cancelado', 'encerrado'])
-            ->where('data_hora', '>', now())
+            ->where('data_hora_limite_inscricao', '>', now())
             ->get();
 
         return view('jogos_disponiveis', compact('jogos'));

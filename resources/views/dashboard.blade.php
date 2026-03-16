@@ -70,7 +70,7 @@
                     </div>
                 @else
                     <div class="row g-4">
-                        @foreach($jogos as $jogo)
+                        @foreach($jogos as $jogo)                        
                             <div class="col-md-6 col-lg-4">
                                 <div class="card h-100 game-card">
                                     <div class="card-body p-4 d-flex flex-column">
@@ -139,57 +139,64 @@
                                         </div>
 
                                         {{-- Ações de Inscrição --}}
-                                        <div class="mt-auto pt-3 border-top border-opacity-50">
-                                            @php
-                                                $minhaInscricao = $jogo->inscricoes->first(); 
-                                            @endphp
-
-                                            @if(!$minhaInscricao)
-                                                {{-- Não inscrito --}}
-                                                <form action="{{ route('fazer_inscricao') }}" method="POST">
-                                                    @csrf
-                                                    <input type="hidden" name="jogo_id" value="{{ Crypt::encrypt($jogo->id) }}">
-                                                    <button type="submit" class="btn btn-outline-success w-100 btn-action-pira">
-                                                        <i class="bi bi-plus-circle me-1"></i> Quero Participar
-                                                    </button>
-                                                </form>
-                                            @else
-                                                {{-- Já inscrito --}}
-                                                <div class="text-center">
-                                                    @if($minhaInscricao->status == 'pendente')
-                                                        <div class="bg-warning bg-opacity-10 border border-warning rounded-4 py-2 mb-2 fw-bold small">
-                                                            <i class="bi bi-clock-history me-1"></i> Aguardando aprovação
-                                                        </div>
-                                                    @elseif($minhaInscricao->status == 'confirmado')
-                                                        <div class="bg-success bg-opacity-10 text-success border border-success rounded-4 py-2 mb-2 fw-bold small">
-                                                            <i class="bi bi-check-circle-fill me-1"></i> Incrição Confirmada!
-                                                        </div>
-                                                    @elseif($minhaInscricao->status == 'cancelada')
-                                                        <div class="bg-danger bg-opacity-10 text-danger border border-danger rounded-4 py-2 mb-2 fw-bold small">
-                                                            <i class="bi bi-x-circle-fill me-1"></i> Inscrição Cancelada
-                                                        </div>
-                                                        <form action="{{ route('fazer_inscricao') }}" method="POST">
-                                                            @csrf
-                                                            <input type="hidden" name="jogo_id" value="{{ Crypt::encrypt($jogo->id) }}">
-                                                            <button type="submit" class="btn btn-outline-secondary w-100 btn-action-pira" style="font-size: 0.85rem;">
-                                                                Tentar novamente
-                                                            </button>
-                                                        </form>
-                                                    @endif
-
-                                                    @if($minhaInscricao->status != 'cancelada' && $minhaInscricao->status != 'recusada')
-                                                        <form action="{{ route('cancelar_inscricao') }}" method="POST" onsubmit="return confirm('Tem certeza que deseja cancelar sua vaga?')">
-                                                            @csrf
-                                                            <input type="hidden" name="inscricao_id" value="{{ Crypt::encrypt($minhaInscricao->id) }}">
-                                                            <button type="submit" class="btn text-danger bg-transparent p-0 mt-2 small fw-bold text-decoration-underline" style="border: none;">
-                                                                Cancelar minha vaga
-                                                            </button>
-                                                        </form>
-                                                    @endif
+                                        @if($jogo->data_hora_limite_inscricao < date('Y-m-d H:i'))
+                                            <div class="pt-3 border-top border-opacity-50 text-center">
+                                                <div class="bg-light bg-opacity-10 border border-warning rounded-4 py-2 fw-bold small text-warning">
+                                                    <i class="bi bi-lock-fill me-1"></i> Inscrições encerradas
                                                 </div>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @else
+                                            <div class="mt-auto pt-3 border-top border-opacity-50">
+                                                @php
+                                                    $minhaInscricao = $jogo->inscricoes->first(); 
+                                                @endphp
 
+                                                @if(!$minhaInscricao)
+                                                    {{-- Não inscrito --}}
+                                                    <form action="{{ route('fazer_inscricao') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="jogo_id" value="{{ Crypt::encrypt($jogo->id) }}">
+                                                        <button type="submit" class="btn btn-outline-success w-100 btn-action-pira">
+                                                            <i class="bi bi-plus-circle me-1"></i> Quero Participar
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    {{-- Já inscrito --}}
+                                                    <div class="text-center">
+                                                        @if($minhaInscricao->status == 'pendente')
+                                                            <div class="bg-warning bg-opacity-10 border border-warning rounded-4 py-2 mb-2 fw-bold small">
+                                                                <i class="bi bi-clock-history me-1"></i> Aguardando aprovação
+                                                            </div>
+                                                        @elseif($minhaInscricao->status == 'confirmado')
+                                                            <div class="bg-success bg-opacity-10 text-success border border-success rounded-4 py-2 mb-2 fw-bold small">
+                                                                <i class="bi bi-check-circle-fill me-1"></i> Incrição Confirmada!
+                                                            </div>
+                                                        @elseif($minhaInscricao->status == 'cancelada')
+                                                            <div class="bg-danger bg-opacity-10 text-danger border border-danger rounded-4 py-2 mb-2 fw-bold small">
+                                                                <i class="bi bi-x-circle-fill me-1"></i> Inscrição Cancelada
+                                                            </div>
+                                                            <form action="{{ route('fazer_inscricao') }}" method="POST">
+                                                                @csrf
+                                                                <input type="hidden" name="jogo_id" value="{{ Crypt::encrypt($jogo->id) }}">
+                                                                <button type="submit" class="btn btn-outline-secondary w-100 btn-action-pira" style="font-size: 0.85rem;">
+                                                                    Tentar novamente
+                                                                </button>
+                                                            </form>
+                                                        @endif
+
+                                                        @if($minhaInscricao->status != 'cancelada' && $minhaInscricao->status != 'recusada')
+                                                            <form action="{{ route('cancelar_inscricao') }}" method="POST" onsubmit="return confirm('Tem certeza que deseja cancelar sua vaga?')">
+                                                                @csrf
+                                                                <input type="hidden" name="inscricao_id" value="{{ Crypt::encrypt($minhaInscricao->id) }}">
+                                                                <button type="submit" class="btn text-danger bg-transparent p-0 mt-2 small fw-bold text-decoration-underline" style="border: none;">
+                                                                    Cancelar minha vaga
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

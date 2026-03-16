@@ -130,7 +130,7 @@
                                 <div class="col-6 ps-3">
                                     <div class="info-label">Sua Inscrição</div>
                                     <div class="mt-1 small">
-                                        @if($inscricao->status === 'aprovada' || $inscricao->status === 'confirmada')
+                                        @if($inscricao->status === 'confirmado')
                                             <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Aprovado</span>
                                         @elseif($inscricao->status === 'pendente')
                                             <span class="text-warning fw-bold"><i class="bi bi-hourglass-split me-1"></i> Pendente</span>

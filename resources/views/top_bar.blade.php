@@ -5,7 +5,9 @@
             <img src="{{ asset('img/logo_piravolei.png') }}" alt="Logo PiraVôlei" width="32" height="32" class="me-2 rounded">
             <span class="text-primary">Pira</span>Vôlei
         </a>
-        
+        @php
+            date_default_timezone_set('America/Sao_Paulo');            
+        @endphp
         {{-- Botão Mobile --}}
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>

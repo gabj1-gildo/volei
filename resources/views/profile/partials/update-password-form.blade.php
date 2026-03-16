@@ -14,17 +14,17 @@
             <div class="row g-4 mb-4">
                 <div class="col-md-12">
                     <label class="form-label fw-bold small text-secondary-emphasis">SENHA ATUAL</label>
-                    <input name="current_password" type="password" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4 @error('current_password', 'updatePassword') is-invalid @enderror" placeholder="Sua senha atual">
+                    <input name="current_password" type="password" class="form-control form-control-pira form-control-lg border-0 rounded-4 px-4 @error('current_password', 'updatePassword') is-invalid @enderror" placeholder="Sua senha atual">
                 </div>
                 
                 <div class="col-md-6">
                     <label class="form-label fw-bold small text-secondary-emphasis">NOVA SENHA</label>
-                    <input name="password" type="password" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4 @error('password', 'updatePassword') is-invalid @enderror" placeholder="Sua nova senha">
+                    <input name="password" type="password" class="form-control form-control-pira form-control-lg border-0 rounded-4 px-4 @error('password', 'updatePassword') is-invalid @enderror" placeholder="Sua nova senha">
                 </div>
                 
                 <div class="col-md-6">
                     <label class="form-label fw-bold small text-secondary-emphasis">CONFIRMAR NOVA SENHA</label>
-                    <input name="password_confirmation" type="password" class="form-control form-control-pira form-control-lg bg-light border-0 rounded-4 px-4 @error('password_confirmation', 'updatePassword') is-invalid @enderror" placeholder="Repita a nova senha">
+                    <input name="password_confirmation" type="password" class="form-control form-control-pira form-control-lg border-0 rounded-4 px-4 @error('password_confirmation', 'updatePassword') is-invalid @enderror" placeholder="Repita a nova senha">
                 </div>
             </div>
 
