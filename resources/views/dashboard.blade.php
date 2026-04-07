@@ -139,7 +139,7 @@
                                         </div>
 
                                         {{-- Ações de Inscrição --}}
-                                        @if($jogo->data_hora_limite_inscricao < date('Y-m-d H:i'))
+                                        @if($jogo->data_hora_limite_inscricao <= date('Y-m-d H:i'))
                                             <div class="pt-3 border-top border-opacity-50 text-center">
                                                 <div class="bg-light bg-opacity-10 border border-warning rounded-4 py-2 fw-bold small text-warning">
                                                     <i class="bi bi-lock-fill me-1"></i> Inscrições encerradas
