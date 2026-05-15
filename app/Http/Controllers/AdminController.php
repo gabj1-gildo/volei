@@ -36,15 +36,15 @@ class AdminController extends Controller
         $session = SessionManager::getInstance();
 
         // Factory Method: admin/organizador usam TodosJogosFilter
-        $jogos = JogoFilterFactory::resolverFiltro($session->getUserTipo())
+        $jogosAgrupados = JogoFilterFactory::resolverFiltro($session->getUserTipo())
             ->getJogos()
-            ->groupBy(fn ($j) => $j->responsavel->name);
+            ->groupBy(fn ($j) => $j->responsavel?->name ?? 'Sem Responsável');
 
         $titulos      = Titulo::where('ativo', true)->get();
         $locais       = Local::where('ativo', true)->get();
         $organizadores = User::where('tipo', 'organizador')->get();
 
-        return view('admin_gerenciar_jogos', compact('jogos', 'titulos', 'locais', 'organizadores'));
+        return view('admin_gerenciar_jogos', compact('jogosAgrupados', 'titulos', 'locais', 'organizadores'));
     }
 
     /**
